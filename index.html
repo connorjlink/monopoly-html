@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Monopoly</title>
+        <link rel="stylesheet" href="layout.css">
+
+        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="theme.css">
+
+        <link rel="stylesheet" href="deed.css">
+        <link rel="stylesheet" href="board.css">
+
+        <script src="property.js"></script>
+        <script src="iconic.js"></script>
+        <script src="corner.js"></script>
+        <script src="deed.js"></script>
+        <script src="game.js"></script>
+    </head>
+
+    <body>
+        <div id="newgame-blur">
+            <dialog id="newgame-dialog">
+                <div class="newgame-modal vstack">
+                    <h1>New Game</h1>
+                    
+                    <hr>
+    
+                    <h2>Add Player</h2>
+                    <div class="fullwide hstack">
+                        <input class="expand" placeholder="Insert player name here...">
+                        <button>Add</button>
+                    </div>
+    
+                    <h2>Existing Players</h2>
+                    <div class="stdspacing">
+                        <table class="fullwide">
+                            <thead>
+                                <tr class="header-row">
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Token</th>
+                                    <th scope="col">Turn Order</th>
+                                </tr>
+                            </thead>
+    
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Player 1</th>
+                                </tr>
+    
+                                <tr>
+                                    <th scope="row">Player 2</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+    
+                    <div class="dummy"></div>
+    
+                    <button onclick="randomizeTurnOrder()">Randomize Turn Order</button>
+                    <button onclick="startGame()">Start Game</button>
+                </div>
+            </dialog>
+        </div>
+
+        <div>
+            <header>
+                <h1 class="game-title">HTML Monopoly</h1>
+                <nav>
+                    <ul class="hstack">
+                        <li class="item" onclick="showBoard()">Board</li>
+                        <li class="item" onclick="showAssets()">Assets</li>
+                        <li class="item" onclick="showBank()">Bank</li>
+                        <li class="item" onclick="showSettings()">Settings</li>
+                    </ul>
+                </nav>
+            </header>
+    
+            <!-- Board tab -->
+            <div class="tab hidden">
+                <div class="board-container">
+                    <!-- Game logic interaction section -->
+                    <div class="overlay">
+                        <div class="shadowed">
+                            <div class="overlay-container">
+                                <h1>Game In Progress</h1>
+
+                                <hr>
+
+                                <h2>Players</h2>
+                                <div class="turn-container hstack">
+                                    <div class="turn vstack">
+                                        <p>Player 1</p>
+                                        <b>100&cent;</b>
+                                    </div>
+                                
+                                    <div class="turn vstack">
+                                        <p>Player 2</p>
+                                        <b>200&cent;</b>
+                                    </div>
+                                </div>
+                            
+                                <h2>Log</h2>
+                                <div class="stdspacing">
+                                    <textarea class="output-log" readonly="true"></textarea>
+                                </div>
+
+                                <h2>Actions</h2>
+                                <div class="player-actions hstack">
+                                    <button>Roll</button>
+                                    <button>Trade</button>
+                                    <button>End Turn</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <div class="board">
+                        <div class="vstack">
+                            <!-- board top -->
+                            <div class="hstack side" id="s3">
+                                <board-corner style="border-width: 1px 1px 2px 2px"></board-corner>
+                
+                                <board-property name="Marvin Gardens" color="rgb(250, 230, 0)" cost="280"></board-property>
+                    
+                                <board-iconic name="Water Works" icon="&#x2550;&#x2567;&#x2555;" cost="150&cent;"></board-iconic>
+                    
+                                <board-property name="Ventnor Avenue" color="rgb(250, 230, 0)" cost="260"></board-property>
+                    
+                                <board-property name="Atlantic Avenue" color="rgb(250, 230, 0)" cost="260"></board-property>
+                    
+                                <board-iconic name="B. & O. Railroad" icon="&csube;&#x2291;&#x2292;&csupe;" cost="200&cent;"></board-iconic>
+                    
+                                <board-property name="Illinois Avenue" color="rgb(220, 20, 50)" cost="240"></board-property>
+                    
+                                <board-property name="Indiana Avenue" color="rgb(220, 20, 50)" cost="220"></board-property>
+                    
+                                <board-iconic name="Chance" icon="&quest;" cost=""></board-iconic>
+                    
+                                <board-property name="Kentucky Avenue" color="rgb(220, 20, 50)" cost="220"></board-property>
+                
+                                <board-corner style="border-width: 1px 2px 2px 1px"></board-corner>
+                            </div>
+                
+                            <!-- board left and right -->
+                            <div class="hstack">
+                                <!-- board left -->
+                                <div class="rotation-wrapper-outer">
+                                    <div class="rotation-wrapper-inner">
+                                        <div class="hstack side" id="s2">
+                                            <board-property name="New York Avenue" color="rgb(240, 130, 30)" cost="200"></board-property>
+                        
+                                            <board-property name="Tennessee Avenue" color="rgb(240, 130, 30)" cost="180"></board-property>
+                        
+                                            <board-iconic name="Community Chest" icon="&boxminus;" cost="Follow Card Instructions"></board-iconic>
+                
+                                            <board-property name="St. James Place" color="rgb(240, 130, 30)" cost="180"></board-property>
+                
+                                            <board-iconic name="Pennsylavania Railroad" icon="&csube;&#x2291;&#x2292;&csupe;" cost="200&cent;"></board-iconic>
+                
+                                            <board-property name="Virginia Avenue" color="rgb(220, 20, 110)" cost="160"></board-property>
+                
+                                            <board-property name="States Avenue" color="rgb(220, 20, 110)" cost="140"></board-property>
+                
+                                            <board-iconic name="Electric Company" icon="&#x1F4A1" cost="150&cent;"></board-iconic>
+                
+                                            <board-property name="St. Charles Place" color="rgb(220, 20, 110)" cost="140"></board-property>
+                                        </div>
+                                    </div>
+                                </div>
+                        
+                                <div class="board-spacer"></div>
+                
+                                <!-- board right -->
+                                <div class="hstack side" id="s4">
+                                    <board-property name="Boardwalk" color="rgb(30, 50, 150)" cost="400"></board-property>
+                                
+                                    <board-iconic name="Luxury Tax" icon="&varnothing;" cost="Pay 100&cent;"></board-iconic>
+                                
+                                    <board-property name="Park Place" color="rgb(30, 50, 150)" cost="350"></board-property>
+                                
+                                    <board-iconic name="Chance" icon="&quest;" cost=""></board-iconic>
+                                
+                                    <board-iconic name="Short Line" icon="&csube;&#x2291;&#x2292;&csupe;" cost="200&cent;"></board-iconic>
+                                
+                                    <board-property name="Pennsylavania Avenue" color="rgb(30, 130, 20)" cost="320"></board-property>
+                                
+                                    <board-iconic name="Community Chest" icon="&boxminus;" cost="Follow Card Instructions"></board-iconic>
+                                
+                                    <board-property name="North Carolina Avenue" color="rgb(30, 130, 20)" cost="300"></board-property>
+                                
+                                    <board-property name="Pacific Avenue" color="rgb(30, 130, 20)" cost="300"></board-property>
+                                </div>  
+                            </div>
+                
+                            <!-- board bottom -->
+                            <div class="hstack shrink-to-fit side" id="s1">
+                                <board-corner style="border-width: 1px 1px 2px 2px"></board-corner>
+                
+                                <board-property name="Connecticut Avenue" color="rgb(200, 230, 255)" cost="120"></board-property>
+                    
+                                <board-property name="Vermont Avenue" color="rgb(200, 230, 255)" cost="100"></board-property>
+                    
+                                <board-iconic name="Chance" icon="&quest;" cost=""></board-iconic>
+                    
+                                <board-property name="Oriental Avenue" color="rgb(200, 230, 255)" cost="100"></board-property>
+                    
+                                <board-iconic name="Reading Railroad" icon="&csube;&#x2291;&#x2292;&csupe;" cost="200&cent;"></board-iconic>
+                    
+                                <board-iconic name="Income Tax" icon="&loz;" cost="Pay 200&cent;"></board-iconic>
+                    
+                                <board-property name="Baltic Avenue" color="rgb(90, 50, 20)" cost="60"></board-property>
+                    
+                                <board-iconic name="Community Chest" icon="&boxminus;" cost="Follow Card Instructions"></board-iconic>
+                    
+                                <board-property name="Mediterrean Avenue" color="rgb(90, 50, 20)" cost="60"></board-property>
+                
+                                <board-corner style="border-width: 1px 2px 2px 1px"></board-corner>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="tab flex-tab vstack hidden">
+                <h2>Assets</h2>
+
+                <h3>Player Accounts</h3>
+                <table>
+                    <thead>
+                        <tr class="header-row">
+                            <th scope="col">Name</th>
+                            <th scope="col">Available Balance</th>
+                            <th scope="col">Net Worth</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <th scope="row">Player t1</th>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Player 2</th>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>My Titles</h3>
+                <div class="asset-container">
+                    <title-deed name="Test" rent0="0" rent1="1" rent2="2" rent3="3" rent4="4" rent5="5" mortval="100" devcost="50"></title-deed>
+                    <title-deed name="Test" rent0="0" rent1="1" rent2="2" rent3="3" rent4="4" rent5="5" mortval="100" devcost="50"></title-deed>
+                    <title-deed name="Test" rent0="0" rent1="1" rent2="2" rent3="3" rent4="4" rent5="5" mortval="100" devcost="50"></title-deed>
+                    <title-deed name="Test" rent0="0" rent1="1" rent2="2" rent3="3" rent4="4" rent5="5" mortval="100" devcost="50"></title-deed>
+
+                    <utility-deed name="ELECTRIC COMPANY" icon="&#x1F4A1;"></utility-deed>
+                    <utility-deed name="WATER WORKS" icon="&#x2550;&#x2567;&#x2555;"></utility-deed>
+                </div>
+            </div>
+    
+            <div class="tab flex-tab hidden">
+                <h2>Bank</h2>
+
+                <h3>Property</h3>
+                <table>
+                    <thead>
+                        <tr class="header-row">
+                            <th scope="col">Type</th>
+                            <th scope="col">Available</th>
+                            <th scope="col">In Use</th>
+                            <th scope="col">Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <th scope="row">Houses</th>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Hotels</th>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Trading</h3>
+                <div class="hstack">
+                    <label>Initiate trade with...
+                        <select id="initiate-trade">
+                            <option>Player 1</option>
+                            <option>Player 2</option>
+                            <option>Player 3</option>
+                            <option>Player 4</option>
+                        </select>
+                    </label>
+    
+                    <button>Go</button>
+                </div>
+            </div>
+    
+            <div class="tab hidden">
+                <h2>Settings</h2>
+                
+            </div>
+        </div>
+    </body>
+
+    <script src="index.js"></script>
+</html>

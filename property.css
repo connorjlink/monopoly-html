@@ -1,0 +1,62 @@
+@media (prefers-color-scheme: light) {
+    :root {
+        --board-color: color-mix(in srgb, limegreen 15%, white 85%);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --board-color: color-mix(in srgb, limegreen 15%, lightgray 85%);
+    }
+}
+
+.space {
+    display: flex;
+    flex-direction: column;
+
+    background-color: var(--board-color);
+    width: var(--property-width);
+    height: var(--property-height);
+
+    border-width: 2px 1px 2px 1px;
+    border-style: solid;
+    border-color: black;
+}
+
+.corner {
+    background-color: var(--board-color);
+    width: var(--property-height);
+    height: var(--property-height);
+
+    border-style: solid;
+    border-color: black;
+}
+
+.space-color {
+    background-color: forestgreen;
+    border-bottom: 2px solid black;
+    width: 100%;
+    height: 1.25rem;
+}
+
+.space-content {
+    font-size: smaller;
+    font-family: system-ui;
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+
+    height: 100%;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+
+    * {
+        color: black;
+    }
+}
+
+.dummy {
+    flex: 1;
+}

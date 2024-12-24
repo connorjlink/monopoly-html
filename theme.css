@@ -1,0 +1,36 @@
+* {
+    --accent-purple-d: rgb(123, 112, 211);
+    --accent-purple: rgb(143, 132, 231);
+    --accent-purple-l: rgb(163, 152, 251);
+
+    --accent-blue-d: rgb(83, 134, 189);
+    --accent-blue: rgb(103, 154, 209);
+    --accent-blue-l: rgb(123,174, 229);
+
+    --shadow-color: rgba(0, 0, 0, 0.25);
+}
+
+/* @media (prefers-color-scheme: light) { */
+    * {
+        --foreground-d: rgb(30, 30, 30) !important;
+        --foreground: rgb(40, 40, 40) !important;
+        --foreground-l: rgb(69, 69, 69) !important;
+    
+        --background-ll: rgb(190, 190, 190) !important;
+        --background-l: rgb(210, 210, 210) !important;
+        --background: rgb(230, 230, 230) !important;
+        --background-d: rgb(250, 250, 250) !important;
+    }
+/* } */
+
+/* @media (prefers-color-scheme: dark) {
+    * {
+        --my-background-d: rgb(30, 30, 30) !important;
+        --my-background: rgb(40, 40, 40) !important;
+        --my-background-l: rgb(69, 69, 69) !important;
+    
+        --my-foreground-d: rgb(210, 210, 210) !important;
+        --my-foreground: rgb(230, 230, 230) !important;
+        --my-foreground-l: rgb(250, 250, 250) !important;
+    }
+} */

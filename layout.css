@@ -1,0 +1,41 @@
+:root {
+    --property-width: 4rem;
+    --property-height: 6rem;
+}
+
+.vstack {
+    display: flex;
+    flex-direction: column;
+}
+
+.hstack {
+    display: flex;
+    flex-direction: row;
+}
+
+.dummy {
+    flex: 1;
+}
+
+.expand {
+    flex-grow: 1;
+}
+
+.fullwide {
+    width: 100%;
+}
+
+.nospacing {
+    padding: 0;
+    margin: 0;
+}
+
+.stdspacing {
+    padding: 0;
+    margin: 5px;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
