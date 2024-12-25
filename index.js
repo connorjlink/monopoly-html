@@ -71,10 +71,10 @@ function transitionRotate(card) {
 }
 
 // For asset 3d hover effect
-const cards = document.getElementsByClassName('card');
+const deeds = document.getElementsByClassName('deed');
 let bounds;
 
-function rotateToMouse(e, card) {
+function rotateToMouse(e, deed) {
     const mouseX = e.clientX;
     const mouseY = e.clientY;
     const leftX = mouseX - bounds.x;
@@ -87,7 +87,7 @@ function rotateToMouse(e, card) {
 
     const distance = Math.sqrt(center.x**2 + center.y**2);
 
-    card.style.transform = `
+    deed.style.transform = `
         rotate3d(
           ${-center.y / 100},
           ${center.x / 100},
@@ -98,7 +98,7 @@ function rotateToMouse(e, card) {
     
 }
 
-for (const card of cards) {
+for (const card of deeds) {
     card.addEventListener('mouseenter', () => {
         bounds = card.getBoundingClientRect();
 
