@@ -1,6 +1,6 @@
 :root {
-    --property-width: 4rem;
-    --property-height: 6rem;
+    --property-width: 80px;
+    --property-height: 120px;
 }
 
 .vstack {

@@ -96,16 +96,16 @@ function railroad(name) {
     
             <h3 class="name">${name}</h3>
     
-            <b class="nudge">Rent 25&cent;</b>
-    
-            <div class="columnized">
+            <div class="columnized nudge">
                 <ul class="left">
+                    <li>With 1 R.R. owned</li>
                     <li>With 2 R.R. owned</li>
                     <li>With 3 R.R. owned</li>
                     <li>With 4 R.R. owned</li>
                 </ul>
     
                 <ul class="right">
+                    <li>25&cent;</li>
                     <li>50&cent;</li>
                     <li>100&cent;</li>
                     <li>200&cent;</li>

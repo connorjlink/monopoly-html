@@ -2,11 +2,10 @@
 <html>
     <head>
         <title>Monopoly</title>
-        <link rel="stylesheet" href="layout.css">
 
+        <link rel="stylesheet" href="layout.css">
         <link rel="stylesheet" href="index.css">
         <link rel="stylesheet" href="theme.css">
-
         <link rel="stylesheet" href="deed.css">
         <link rel="stylesheet" href="board.css">
 
@@ -18,51 +17,47 @@
     </head>
 
     <body>
-        <div id="newgame-blur">
-            <dialog id="newgame-dialog">
-                <div class="newgame-modal vstack">
-                    <h1>New Game</h1>
-                    
-                    <hr>
-    
-                    <h2>Add Player</h2>
-                    <div class="fullwide hstack">
-                        <input class="expand" placeholder="Insert player name here...">
-                        <button>Add</button>
-                    </div>
-    
-                    <h2>Existing Players</h2>
-                    <div class="stdspacing">
-                        <table class="fullwide">
-                            <thead>
-                                <tr class="header-row">
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Token</th>
-                                    <th scope="col">Turn Order</th>
-                                </tr>
-                            </thead>
-    
-                            <tbody>
-                                <tr>
-                                    <th scope="row">Player 1</th>
-                                </tr>
-    
-                                <tr>
-                                    <th scope="row">Player 2</th>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-    
-                    <div class="dummy"></div>
-    
-                    <button onclick="randomizeTurnOrder()">Randomize Turn Order</button>
-                    <button onclick="startGame()">Start Game</button>
-                </div>
-            </dialog>
-        </div>
+        <dialog id="newgame-dialog">
+            <h1>New Game</h1>
+                
+            <hr>
 
-        <div>
+            <h2>Add Player</h2>
+            <div class="fullwide hstack">
+                <input class="expand" placeholder="Insert player name here...">
+                <button>Add</button>
+            </div>
+
+            <h2>Existing Players</h2>
+            <div class="stdspacing">
+                <table class="fullwide">
+                    <thead>
+                        <tr class="header-row">
+                            <th scope="col">Name</th>
+                            <th scope="col">Token</th>
+                            <th scope="col">Turn Order</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <th scope="row">Player 1</th>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Player 2</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="dummy"></div>
+
+            <button onclick="randomizeTurnOrder()">Randomize Turn Order</button>
+            <button onclick="startGame()">Start Game</button>
+        </dialog>
+
+        <div id="game">
             <header>
                 <h1 class="game-title">HTML Monopoly</h1>
                 <nav>
@@ -78,39 +73,34 @@
             <!-- Board tab -->
             <div class="tab hidden">
                 <div class="board-container">
-                    <!-- Game logic interaction section -->
                     <div class="overlay">
-                        <div class="shadowed">
-                            <div class="overlay-container">
-                                <h1>Game In Progress</h1>
+                        <h1>Game In Progress</h1>
 
-                                <hr>
+                        <hr>
 
-                                <h2>Players</h2>
-                                <div class="turn-container hstack">
-                                    <div class="turn vstack">
-                                        <p>Player 1</p>
-                                        <b>100&cent;</b>
-                                    </div>
-                                
-                                    <div class="turn vstack">
-                                        <p>Player 2</p>
-                                        <b>200&cent;</b>
-                                    </div>
-                                </div>
-                            
-                                <h2>Log</h2>
-                                <div class="stdspacing">
-                                    <textarea class="output-log" readonly="true"></textarea>
-                                </div>
-
-                                <h2>Actions</h2>
-                                <div class="player-actions hstack">
-                                    <button>Roll</button>
-                                    <button>Trade</button>
-                                    <button>End Turn</button>
-                                </div>
+                        <h2>Players</h2>
+                        <div class="turn-container hstack">
+                            <div class="turn vstack">
+                                <p>Player 1</p>
+                                <b>100&cent;</b>
                             </div>
+                        
+                            <div class="turn vstack">
+                                <p>Player 2</p>
+                                <b>200&cent;</b>
+                            </div>
+                        </div>
+                        
+                        <h2>Log</h2>
+                        <div class="stdspacing">
+                            <textarea class="output-log" readonly="true"></textarea>
+                        </div>
+
+                        <h2>Actions</h2>
+                        <div class="player-actions hstack">
+                            <button>Roll</button>
+                            <button>Trade</button>
+                            <button>End Turn</button>
                         </div>
                     </div>
             
@@ -221,7 +211,7 @@
                 </div>
             </div>
     
-            <div class="tab flex-tab vstack hidden">
+            <div class="tab vstack hidden">
                 <h2>Assets</h2>
 
                 <h3>Player Accounts</h3>
@@ -258,7 +248,7 @@
                 </div>
             </div>
     
-            <div class="tab flex-tab hidden">
+            <div class="tab vstack hidden">
                 <h2>Bank</h2>
 
                 <h3>Property</h3>

@@ -5,7 +5,7 @@
     display: flex;
 
     * {
-        font-size: 0.4rem;
+        font-size: 0.70rem;
     }
 
     p {
@@ -57,14 +57,6 @@
 #s3 {
     transform: rotate(180deg);
 }
-
-/* #s4 {
-    display: flex;
-    flex-direction: row; 
-  transform-origin: top left;
-  transform: rotate(-90deg) translate(-100%);
-  margin-top: -50%;
-}*/
 
 #s4 {
     position: relative;

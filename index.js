@@ -57,9 +57,12 @@ function showSettings() {
 const dialog = document.getElementById("newgame-dialog");
 dialog.showModal();
 
+const game = document.getElementById("game");
+game.classList.toggle("hidden", true);
+
 function startGame() {
-    document.getElementById("newgame-dialog").close();
-    document.getElementById("newgame-blur").classList.toggle("hidden", true);
+    dialog.close();
+    game.classList.toggle("hidden", false);
 }
 
 function transitionRotate(card) {
