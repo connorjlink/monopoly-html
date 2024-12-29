@@ -9,57 +9,44 @@
         <link rel="stylesheet" href="deed.css">
         <link rel="stylesheet" href="board.css">
 
-        <script src="property.js"></script>
-        <script src="iconic.js"></script>
-        <script src="corner.js"></script>
+        <script src="board.js"></script>
         <script src="deed.js"></script>
-        <script src="game.js"></script>
     </head>
 
     <body>
         <dialog id="newgame-dialog">
             <h1>New Game</h1>
-                
+
             <hr>
 
             <h2>Add Player</h2>
             <div class="fullwide hstack">
-                <input class="expand" placeholder="Insert player name here...">
-                <button>Add</button>
+                <input id="name-input" class="expand" type="text" placeholder="Insert player name here...">
+                <button id="add-button" onclick="addPlayer()">Add</button>
             </div>
 
             <h2>Existing Players</h2>
-            <div class="stdspacing">
-                <table class="fullwide">
-                    <thead>
-                        <tr class="header-row">
-                            <th scope="col">Name</th>
-                            <th scope="col">Token</th>
-                            <th scope="col">Turn Order</th>
-                        </tr>
-                    </thead>
+            <table class="players-table">
+                <thead>
+                    <tr class="header-row">
+                        <th>Name</th>
+                        <th>Color</th>
+                        <th>Turn Order</th>
+                    </tr>
+                </thead>
 
-                    <tbody>
-                        <tr>
-                            <th scope="row">Player 1</th>
-                        </tr>
-
-                        <tr>
-                            <th scope="row">Player 2</th>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="dummy"></div>
+                <tbody id="existing-players">
+                </tbody>
+            </table>
 
             <button onclick="randomizeTurnOrder()">Randomize Turn Order</button>
-            <button onclick="startGame()">Start Game</button>
+            <button onclick="startGame()" id="start-button" disabled="true">Start Game</button>
         </dialog>
 
         <div id="game">
             <header>
                 <h1 class="game-title">HTML Monopoly</h1>
+
                 <nav>
                     <ul class="hstack">
                         <li class="item" onclick="showBoard()">Board</li>
@@ -79,22 +66,11 @@
                         <hr>
 
                         <h2>Players</h2>
-                        <div class="turn-container hstack">
-                            <div class="turn vstack">
-                                <p>Player 1</p>
-                                <b>100&cent;</b>
-                            </div>
-                        
-                            <div class="turn vstack">
-                                <p>Player 2</p>
-                                <b>200&cent;</b>
-                            </div>
+                        <div id="turn-container">
                         </div>
                         
                         <h2>Log</h2>
-                        <div class="stdspacing">
-                            <textarea class="output-log" readonly="true"></textarea>
-                        </div>
+                        <textarea class="output-log" readonly="true"></textarea>
 
                         <h2>Actions</h2>
                         <div class="player-actions hstack">
@@ -108,7 +84,7 @@
                         <div class="vstack">
                             <!-- board top -->
                             <div class="hstack side" id="s3">
-                                <board-corner style="border-width: 1px 1px 2px 2px"></board-corner>
+                                <board-corner style="border-width: 1px 1px 4px 4px"></board-corner>
                 
                                 <board-property name="Marvin Gardens" color="rgb(250, 230, 0)" cost="280"></board-property>
                     
@@ -128,7 +104,7 @@
                     
                                 <board-property name="Kentucky Avenue" color="rgb(220, 20, 50)" cost="220"></board-property>
                 
-                                <board-corner style="border-width: 1px 2px 2px 1px"></board-corner>
+                                <board-corner style="border-width: 1px 4px 4px 1px"></board-corner>
                             </div>
                 
                             <!-- board left and right -->
@@ -184,7 +160,7 @@
                 
                             <!-- board bottom -->
                             <div class="hstack shrink-to-fit side" id="s1">
-                                <board-corner style="border-width: 1px 1px 2px 2px"></board-corner>
+                                <board-corner style="border-width: 1px 1px 4px 4px"></board-corner>
                 
                                 <board-property name="Connecticut Avenue" color="rgb(200, 230, 255)" cost="120"></board-property>
                     
@@ -204,7 +180,7 @@
                     
                                 <board-property name="Mediterrean Avenue" color="rgb(90, 50, 20)" cost="60"></board-property>
                 
-                                <board-corner style="border-width: 1px 2px 2px 1px"></board-corner>
+                                <board-corner style="border-width: 1px 4px 4px 1px"></board-corner>
                             </div>
                         </div>
                     </div>
@@ -218,20 +194,13 @@
                 <table>
                     <thead>
                         <tr class="header-row">
-                            <th scope="col">Name</th>
-                            <th scope="col">Available Balance</th>
-                            <th scope="col">Net Worth</th>
+                            <th>Name</th>
+                            <th>Available Balance</th>
+                            <th>Net Worth</th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        <tr>
-                            <th scope="row">Player t1</th>
-                        </tr>
-
-                        <tr>
-                            <th scope="row">Player 2</th>
-                        </tr>
+                    <tbody id="assets-players">
                     </tbody>
                 </table>
 
@@ -255,21 +224,14 @@
                 <table>
                     <thead>
                         <tr class="header-row">
-                            <th scope="col">Type</th>
-                            <th scope="col">Available</th>
-                            <th scope="col">In Use</th>
-                            <th scope="col">Total</th>
+                            <th>Type</th>
+                            <th>Available</th>
+                            <th>In Use</th>
+                            <th>Total</th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        <tr>
-                            <th scope="row">Houses</th>
-                        </tr>
-
-                        <tr>
-                            <th scope="row">Hotels</th>
-                        </tr>
+                    <tbody id="property-container">
                     </tbody>
                 </table>
                 
@@ -296,4 +258,5 @@
     </body>
 
     <script src="index.js"></script>
+    <script src="game.js"></script>
 </html>

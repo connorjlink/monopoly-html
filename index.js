@@ -63,6 +63,7 @@ game.classList.toggle("hidden", true);
 function startGame() {
     dialog.close();
     game.classList.toggle("hidden", false);
+    initializationSequence();
 }
 
 function transitionRotate(card) {
