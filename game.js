@@ -1,13 +1,74 @@
+const outputLog = document.getElementById("output-log");
+
+function logMessage(message) {
+    outputLog.innerText += message + '\n';
+}
+
+
 const TOTAL_HOUSES = 32;
 const TOTAL_HOTELS = 12;
 
 const propertyContainer = document.getElementById("property-container");
 
-class Property {
+class AbstractProperty {
     constructor(name, cost, mortval) {
         this.name = name;
         this.cost = cost;
         this.mortval = mortval;
+        this.improvementState = 0;
+    }
+
+    tryImprove() {
+        let can, reason = this.canImprove();
+
+        if (can) {
+
+        } else {
+            logMessage(reason);
+        }
+    }
+
+    tryDemolish() {
+        let can, reason = this.canDemolish();
+
+        if (can) {
+
+        } else {
+            logMessage(reason);
+        }
+    }
+}
+
+class ColorProperty extends AbstractProperty {
+    constructor(name, cost, mortval, rent0, rent1, rent2, rent3, rent4, rent5, devcost) {
+        super(name, cost, mortval);
+        this.rent0 = rent0;
+        this.rent1 = rent1;
+        this.rent2 = rent2;
+        this.rent3 = rent3;
+        this.rent4 = rent4;
+        this.rent5 = rent5;
+        this.devcost = devcost;
+    }
+
+    canImprove() {
+
+    }
+
+    canDemolish() {
+
+    }
+}
+
+class RailroadProperty extends AbstractProperty {
+
+
+    canImprove() {
+        return false, 'railroad properties cannot be developed';
+    }
+
+    canDemolish() {
+        return false, 'railroad properties cannot be developed';
     }
 
     tryImprove() {
@@ -19,25 +80,16 @@ class Property {
     }
 }
 
-class ColorProperty extends Property {
-    constructor(name, cost, mortval, rent0, rent1, rent2, rent3, rent4, rent5, devcost) {
-        super(name, cost, mortval);
-        this.rent0 = rent0;
-        this.rent1 = rent1;
-        this.rent2 = rent2;
-        this.rent3 = rent3;
-        this.rent4 = rent4;
-        this.rent5 = rent5;
-        this.devcost = devcost;
+class UtilityProperty extends AbstractProperty {
+
+
+    canImprove() {
+        return false, 'utility properties cannot be developed';
     }
-}
 
-class RailroadProperty extends Property {
-
-}
-
-class UtilityProperty extends Property {
-
+    canDemolish() {
+        return false, 'utility properties cannot be developed';
+    }
 }
 
 
@@ -57,51 +109,70 @@ class Property {
     }
 }
 
-var properties = [
-    // brown color group
-    new Property("Mediterranean Avenue", 2, 10, 30, 90, 160, 250, 60, 50, 30),
-    new Property("Baltic Avenue", 4, 20, 60, 180, 320, 450, 60, 50, 30),
 
-    // light blue color group
-    new Property("Oriental Avenue", 6, 30, 90, 270, 400, 550, 100, 50, 50),
-    new Property("Vermont Avenue", 6, 30, 90, 270, 400, 550, 100, 50, 50),
-    new Property("Connecticut Avenue", 8, 40, 100, 300, 450, 600, 120, 50, 60),
-
-    // pink color group
-    new Property("St. Charles Place", 10, 50, 150, 450, 625, 750, 140, 100, 70),
-    new Property("States Avenue", 10, 50, 150, 450, 625, 750, 140, 100, 70),
-    new Property("Virginia Avenue", 12, 60, 180, 500, 700, 900, 160, 100, 80),
-
-    // orange color group
-    new Property("St. James Place", 14, 70, 200, 550, 750, 950, 180, 100, 90),
-    new Property("Tennessee Avenue", 14, 70, 200, 550, 750, 950, 180, 100, 90),
-    new Property("New York Avenue", 16, 80, 220, 600, 800, 1000, 200, 100, 100),
-
-    // red color group
-    new Property("Kentucky Avenue", 18, 90, 250, 700, 875, 1050, 220, 150, 110),
-    new Property("Indiana Avenue", 18, 90, 250, 700, 875, 1050, 220, 150, 110),
-    new Property("Illinois Avenue", 20, 100, 300, 750, 925, 1100, 240, 150, 120),
-    
-    // yellow color group
-    new Property("Atlantic Avenue", 22, 110, 330, 800, 975, 1150, 260, 150, 130),
-    new Property("Ventnor Avenue", 22, 110, 330, 800, 975, 1150, 260, 150, 130),
-    new Property("Marvin Gardens", 24, 120, 360, 850, 1025, 1200, 280, 150, 140),
-
-    // green color group
-    new Property("Pacific Avenue", 26, 130, 390, 900, 1100, 1275, 300, 200, 150),
-    new Property("North Carolina Avenue", 26, 130, 390, 900, 1100, 1275, 300, 200, 150),
-    new Property("Pennsylvania Avenue", 28, 150, 450, 1000, 1200, 1400, 320, 200, 160),
-
-    // dark blue color group
-    new Property("Park Place", 35, 175, 500, 1100, 1300, 1500, 350, 200, 175),
-    new Property("Boardwalk", 50, 200, 600, 1400, 1700, 2000, 400, 200, 200),
-]
-
+// property color group identifiers
+const BROWN = 0, LIGHT_BLUE = 1, PINK = 2, ORANGE = 3, RED = 4, YELLOW = 5, GREEN = 6, BLUE = 7;
 
 class Game {
     constructor() {
         this.availableHouses = TOTAL_HOUSES;
         this.availableHotels = TOTAL_HOTELS;
+
+        this.properties = [
+            // brown color group
+            [
+                new Property("Mediterranean Avenue", 2, 10, 30, 90, 160, 250, 60, 50, 30),
+                new Property("Baltic Avenue", 4, 20, 60, 180, 320, 450, 60, 50, 30),
+            ],
+            
+            // light blue color group
+            [
+                new Property("Oriental Avenue", 6, 30, 90, 270, 400, 550, 100, 50, 50),
+                new Property("Vermont Avenue", 6, 30, 90, 270, 400, 550, 100, 50, 50),
+                new Property("Connecticut Avenue", 8, 40, 100, 300, 450, 600, 120, 50, 60),
+            ],
+            
+            // pink color group
+            [
+                new Property("St. Charles Place", 10, 50, 150, 450, 625, 750, 140, 100, 70),
+                new Property("States Avenue", 10, 50, 150, 450, 625, 750, 140, 100, 70),
+                new Property("Virginia Avenue", 12, 60, 180, 500, 700, 900, 160, 100, 80),
+            ],
+        
+            // orange color group
+            [
+                new Property("St. James Place", 14, 70, 200, 550, 750, 950, 180, 100, 90),
+                new Property("Tennessee Avenue", 14, 70, 200, 550, 750, 950, 180, 100, 90),
+                new Property("New York Avenue", 16, 80, 220, 600, 800, 1000, 200, 100, 100),
+            ],
+        
+            // red color group
+            [
+                new Property("Kentucky Avenue", 18, 90, 250, 700, 875, 1050, 220, 150, 110),
+                new Property("Indiana Avenue", 18, 90, 250, 700, 875, 1050, 220, 150, 110),
+                new Property("Illinois Avenue", 20, 100, 300, 750, 925, 1100, 240, 150, 120),
+            ],
+            
+            // yellow color group
+            [
+                new Property("Atlantic Avenue", 22, 110, 330, 800, 975, 1150, 260, 150, 130),
+                new Property("Ventnor Avenue", 22, 110, 330, 800, 975, 1150, 260, 150, 130),
+                new Property("Marvin Gardens", 24, 120, 360, 850, 1025, 1200, 280, 150, 140),
+            ],
+            
+            // green color group
+            [
+                new Property("Pacific Avenue", 26, 130, 390, 900, 1100, 1275, 300, 200, 150),
+                new Property("North Carolina Avenue", 26, 130, 390, 900, 1100, 1275, 300, 200, 150),
+                new Property("Pennsylvania Avenue", 28, 150, 450, 1000, 1200, 1400, 320, 200, 160),
+            ],
+        
+            // dark blue color group
+            [
+                new Property("Park Place", 35, 175, 500, 1100, 1300, 1500, 350, 200, 175),
+                new Property("Boardwalk", 50, 200, 600, 1400, 1700, 2000, 400, 200, 200),
+            ],
+        ]
     }
 
     updateAvailableProperties() {
@@ -123,8 +194,8 @@ class Game {
     }
 }
 
-var monopolyGame = new Game()
-
+var monopolyGame = new Game();
+monopolyGame.updateAvailableProperties();
 
 class Player {
     constructor(name, color, turn) {
@@ -183,8 +254,10 @@ class Player {
     }
 
     tryDemolish(property) {
-        // demolition failed 
+        // demolition successful 
         if (true) {
+            this.money += cost;
+            property.improvementState++;
 
         }
     }

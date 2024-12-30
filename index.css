@@ -148,7 +148,7 @@ hr {
     width: 100%;
 }
 
-.output-log {
+#output-log {
     resize: none;
     width: calc(100% - 10px);
     height: 200px;
