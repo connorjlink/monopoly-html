@@ -8,9 +8,6 @@
         <link rel="stylesheet" href="theme.css">
         <link rel="stylesheet" href="deed.css">
         <link rel="stylesheet" href="board.css">
-
-        <script src="board.js"></script>
-        <script src="deed.js"></script>
     </head>
 
     <body>
@@ -84,27 +81,18 @@
                         <div class="vstack">
                             <!-- board top -->
                             <div class="hstack side" id="s3">
+                                <!-- TODO: go to jail corner -->
                                 <board-corner style="border-width: 1px 1px 4px 4px"></board-corner>
-                
-                                <board-property name="Marvin Gardens" color="rgb(250, 230, 0)" cost="280"></board-property>
-                    
-                                <board-iconic name="Water Works" icon="&#x2550;&#x2567;&#x2555;" cost="150&cent;"></board-iconic>
-                    
-                                <board-property name="Ventnor Avenue" color="rgb(250, 230, 0)" cost="260"></board-property>
-                    
-                                <board-property name="Atlantic Avenue" color="rgb(250, 230, 0)" cost="260"></board-property>
-                    
-                                <board-iconic name="B. & O. Railroad" icon="&csube;&#x2291;&#x2292;&csupe;" cost="200&cent;"></board-iconic>
-                    
-                                <board-property name="Illinois Avenue" color="rgb(220, 20, 50)" cost="240"></board-property>
-                    
-                                <board-property name="Indiana Avenue" color="rgb(220, 20, 50)" cost="220"></board-property>
-                    
-                                <board-iconic name="Chance" icon="&quest;" cost=""></board-iconic>
-                    
-                                <board-property name="Kentucky Avenue" color="rgb(220, 20, 50)" cost="220"></board-property>
-                
-                                <board-corner style="border-width: 1px 4px 4px 1px"></board-corner>
+                                <board-property propid="16"></board-property> <!--  -->
+                                <board-iconic square="28" icon="&#x1F6B0;" cost="150&cent;"></board-iconic>
+                                <board-property square="27"></board-property> <!--  -->
+                                <board-property square="26"></board-property> <!--  -->
+                                <board-railroad square="25"></board-railroad> <!--  -->
+                                <board-property square="24"></board-property> <!--  -->
+                                <board-property square="23"></board-property> <!--  -->
+                                <board-iconic square="22"></board-iconic> <!--  -->
+                                <board-property square="21"></board-property> <!--  -->
+                                <board-corner square="20" style="border-width: 1px 4px 4px 1px"></board-corner> <!-- TODO: free parking corner -->
                             </div>
                 
                             <!-- board left and right -->
@@ -113,74 +101,56 @@
                                 <div class="rotation-wrapper-outer">
                                     <div class="rotation-wrapper-inner">
                                         <div class="hstack side" id="s2">
-                                            <board-property name="New York Avenue" color="rgb(240, 130, 30)" cost="200"></board-property>
+                                            <board-property square="19"></board-property>
                         
-                                            <board-property name="Tennessee Avenue" color="rgb(240, 130, 30)" cost="180"></board-property>
+                                            <board-property square="18"></board-property>
                         
-                                            <board-iconic name="Community Chest" icon="&boxminus;" cost="Follow Card Instructions"></board-iconic>
+                                            <board-iconic square="17" name="Community Chest" icon="&#x1F4E6;" cost="Follow Card Instructions"></board-iconic>
                 
-                                            <board-property name="St. James Place" color="rgb(240, 130, 30)" cost="180"></board-property>
+                                            <board-property square="16"></board-property>
                 
-                                            <board-iconic name="Pennsylavania Railroad" icon="&csube;&#x2291;&#x2292;&csupe;" cost="200&cent;"></board-iconic>
+                                            <board-railroad square="15"></board-railroad>
                 
-                                            <board-property name="Virginia Avenue" color="rgb(220, 20, 110)" cost="160"></board-property>
+                                            <board-property square="14"></board-property>
                 
-                                            <board-property name="States Avenue" color="rgb(220, 20, 110)" cost="140"></board-property>
+                                            <board-property square="13"></board-property>
                 
-                                            <board-iconic name="Electric Company" icon="&#x1F4A1" cost="150&cent;"></board-iconic>
+                                            <board-iconic square="12" name="Electric Company" icon="&#x1F4A1;" cost="150&cent;"></board-iconic>
                 
-                                            <board-property name="St. Charles Place" color="rgb(220, 20, 110)" cost="140"></board-property>
+                                            <board-property square="11"></board-property>
                                         </div>
                                     </div>
                                 </div>
                         
-                                <div class="board-spacer"></div>
-                
                                 <!-- board right -->
                                 <div class="hstack side" id="s4">
-                                    <board-property name="Boardwalk" color="rgb(30, 50, 150)" cost="400"></board-property>
-                                
-                                    <board-iconic name="Luxury Tax" icon="&varnothing;" cost="Pay 100&cent;"></board-iconic>
-                                
-                                    <board-property name="Park Place" color="rgb(30, 50, 150)" cost="350"></board-property>
-                                
+                                    <board-property propid="21"></board-property>
+                                    <board-iconic name="Luxury Tax" icon="&#x1F48D;" cost="Pay 100&cent;"></board-iconic>
+                                    <board-property propid="20"></board-property>
                                     <board-iconic name="Chance" icon="&quest;" cost=""></board-iconic>
-                                
-                                    <board-iconic name="Short Line" icon="&csube;&#x2291;&#x2292;&csupe;" cost="200&cent;"></board-iconic>
-                                
-                                    <board-property name="Pennsylavania Avenue" color="rgb(30, 130, 20)" cost="320"></board-property>
-                                
-                                    <board-iconic name="Community Chest" icon="&boxminus;" cost="Follow Card Instructions"></board-iconic>
-                                
-                                    <board-property name="North Carolina Avenue" color="rgb(30, 130, 20)" cost="300"></board-property>
-                                
-                                    <board-property name="Pacific Avenue" color="rgb(30, 130, 20)" cost="300"></board-property>
+                                    <board-railroad railid="3"></board-railroad>
+                                    <board-property propid="19"></board-property>
+                                    <board-iconic name="Community Chest" icon="&#x1F4E6;" cost="Follow Card Instructions"></board-iconic>
+                                    <board-property square=""></board-property>
+                                    <board-property square=""></board-property>
                                 </div>  
                             </div>
                 
                             <!-- board bottom -->
                             <div class="hstack shrink-to-fit side" id="s1">
-                                <board-corner style="border-width: 1px 1px 4px 4px"></board-corner>
-                
-                                <board-property name="Connecticut Avenue" color="rgb(200, 230, 255)" cost="120"></board-property>
-                    
-                                <board-property name="Vermont Avenue" color="rgb(200, 230, 255)" cost="100"></board-property>
-                    
-                                <board-iconic name="Chance" icon="&quest;" cost=""></board-iconic>
-                    
-                                <board-property name="Oriental Avenue" color="rgb(200, 230, 255)" cost="100"></board-property>
-                    
-                                <board-iconic name="Reading Railroad" icon="&csube;&#x2291;&#x2292;&csupe;" cost="200&cent;"></board-iconic>
-                    
-                                <board-iconic name="Income Tax" icon="&loz;" cost="Pay 200&cent;"></board-iconic>
-                    
-                                <board-property name="Baltic Avenue" color="rgb(90, 50, 20)" cost="60"></board-property>
-                    
-                                <board-iconic name="Community Chest" icon="&boxminus;" cost="Follow Card Instructions"></board-iconic>
-                    
-                                <board-property name="Mediterrean Avenue" color="rgb(90, 50, 20)" cost="60"></board-property>
-                
-                                <board-corner style="border-width: 1px 4px 4px 1px"></board-corner>
+                                <!-- TODO: jail corner -->
+                                <board-corner square="10" style="border-width: 1px 1px 4px 4px"></board-corner>
+                                <board-property square="9"></board-property>
+                                <board-property square="8"></board-property>
+                                <board-iconic square="7" name="Chance" icon="&quest;" cost=""></board-iconic>
+                                <board-property square="6"></board-property>
+                                <board-railroad square="5"></board-railroad>
+                                <board-iconic square="4" name="Income Tax" icon="&loz;" cost="Pay 200&cent;"></board-iconic>
+                                <board-property square="3"></board-property>
+                                <board-iconic square="2" name="Community Chest" icon="&#x1F4E6;" cost="Follow Card Instructions"></board-iconic>
+                                <board-property square="1"></board-property>
+                                <!-- TODO: go corner -->
+                                <board-corner square="0" style="border-width: 1px 4px 4px 1px"></board-corner>
                             </div>
                         </div>
                     </div>
@@ -259,4 +229,6 @@
 
     <script src="index.js"></script>
     <script src="game.js"></script>
+    <script src="board.js"></script>
+    <script src="deed.js"></script>
 </html>

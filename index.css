@@ -26,6 +26,11 @@ header {
             li:hover {
                 border-color: color-mix(in srgb, var(--foreground) 30%, rgb(128, 128, 128) 70%);
             }
+
+            li.active-tab {
+                font-weight: bold;
+                border-color: color-mix(in srgb, var(--foreground) 30%, rgb(64, 64, 64) 70%);
+            }
         }
     }
 }
@@ -182,10 +187,6 @@ hr {
     > * {
         margin: 5px;
     }
-}
-
-.active-tab {
-    font-weight: bold;
 }
 
 .player-color {

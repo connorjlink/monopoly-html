@@ -10,38 +10,58 @@ const TOTAL_HOTELS = 12;
 
 const propertyContainer = document.getElementById("property-container");
 
-class AbstractProperty {
-    constructor(name, cost, mortval) {
+//Water works icon &#x1F6B0;
+
+class AbstractSquare {
+    constructor(name, color, cost, mortval, icon) {
         this.name = name;
+        this.color = color;
         this.cost = cost;
         this.mortval = mortval;
+        this.icon = icon;
         this.improvementState = 0;
     }
 
-    tryImprove() {
-        let can, reason = this.canImprove();
+    tryImprove(player, game) {
+        let [can, reason] = this.canImprove();
 
         if (can) {
+            this.improvementState++;
+            player.money -= this.devcost;
+
+            if (this.improvementState < 5) {
+                game.availableHouses--;
+            } else {
+                game.availableHotels--;
+            }
 
         } else {
             logMessage(reason);
         }
     }
 
-    tryDemolish() {
-        let can, reason = this.canDemolish();
+    tryDemolish(player, game) {
+        let [can, reason] = this.canDemolish();
 
         if (can) {
+            this.improvementState--;
+            player.money += this.devcost;
 
+            if (this.improvementState < 5) {
+                game.availableHouses++;
+            } else {
+                game.availableHotels++;
+            }
         } else {
             logMessage(reason);
         }
     }
 }
 
-class ColorProperty extends AbstractProperty {
-    constructor(name, cost, mortval, rent0, rent1, rent2, rent3, rent4, rent5, devcost) {
-        super(name, cost, mortval);
+class ColorProperty extends AbstractSquare {
+    constructor(name, color, cost, mortval, rent0, rent1, rent2, rent3, rent4, rent5, devcost) {
+        // no meaningful icon
+        super(name, color, cost, mortval, null);
         this.rent0 = rent0;
         this.rent1 = rent1;
         this.rent2 = rent2;
@@ -49,66 +69,123 @@ class ColorProperty extends AbstractProperty {
         this.rent4 = rent4;
         this.rent5 = rent5;
         this.devcost = devcost;
+        this.isMortgaged = false;
     }
 
     canImprove() {
+        let can = true;
+        let reason = "";
 
+        let isHotelImprovement = this.improvementState > 4;
+
+        if (isMortgaged) {
+            can = false;
+            reason = 'mortgaged properties cannot be developed';
+        } else {
+
+        }
+
+        return [can, reason];
     }
 
     canDemolish() {
+        let can = true;
+        let reason = "";
 
+        let isHotelDemolition = this.improvementState > 4;
+
+        if (isMortgaged) {
+            can = false;
+            reason = 'mortgaged properties cannot be developed';
+        } else {
+
+        }
+
+        return [can, reason];
     }
 }
 
-class RailroadProperty extends AbstractProperty {
-
+class RailroadProperty extends AbstractSquare {
+    constructor(name, cost, mortval, icon) {
+        // no meaningful color
+        super(name, null, 200, 100, icon);
+    }
 
     canImprove() {
-        return false, 'railroad properties cannot be developed';
+        return [false, 'railroad properties cannot be developed'];
     }
 
     canDemolish() {
-        return false, 'railroad properties cannot be developed';
-    }
-
-    tryImprove() {
-
-    }
-
-    tryDemolish() {
-
+        return [false, 'railroad properties cannot be developed'];
     }
 }
 
-class UtilityProperty extends AbstractProperty {
-
+class UtilityProperty extends AbstractSquare {
+    constructor(name, cost, mortval, icon) {
+        // no meaningful color
+        super(name, null, cost, mortval, icon);
+    }
 
     canImprove() {
-        return false, 'utility properties cannot be developed';
+        return [false, 'utility properties cannot be developed'];
     }
 
     canDemolish() {
-        return false, 'utility properties cannot be developed';
+        return [false, 'utility properties cannot be developed'];
     }
 }
 
+class CornerSquare extends AbstractSquare {
+    constructor(name, icon) {
+        // no meaningful color, cost, or mortval
+        super(name, null, null, null, icon);
+    }
 
-class Property {
-    constructor(name, rent0, rent1, rent2, rent3, rent4, rent5, cost, devcost, mortval) {
-        this.name = name;
-        this.rent0 = rent0;
-        this.rent1 = rent1;
-        this.rent2 = rent2;
-        this.rent3 = rent3;
-        this.rent4 = rent4;
-        this.rent5 = rent5;
-        this.cost = cost;
-        this.devcost = devcost;
-        this.mortval = mortval;
-        this.owner = null;
+    canImprove() {
+        return [false, 'corner squares cannot be developed'];
+    }
+
+    canDemolish() {
+        return [false, 'corner squares cannot be developed'];
     }
 }
 
+class CommunityChestSquare extends AbstractSquare {
+    constructor() {
+        // no meaningful color, cost, or mortval
+        super("Community Chest", null, null, null, "&#x1F4E6;");
+    }
+
+    canImprove() {
+        return [false, 'community chest squares cannot be developed'];
+    }
+
+    canDemolish() {
+        return [false, 'community chest squares cannot be developed'];
+    }
+}
+
+class ChanceSquare extends AbstractSquare {
+    constructor() {
+        // no meaningful color, cost, or mortval
+        super("Chance", null, null, null, "&quest;");
+    }
+
+    canImprove() {
+        return [false, 'chance squares cannot be developed'];
+    }
+
+    canDemolish() {
+        return [false, 'chance squares cannot be developed'];
+    }
+}
+
+class TaxSquare extends AbstractSquare {
+    constructor(name, cost, icon) {
+        // no meaningful color or mortval
+        super(name, null, cost, null, icon);
+    }
+}
 
 // property color group identifiers
 const BROWN = 0, LIGHT_BLUE = 1, PINK = 2, ORANGE = 3, RED = 4, YELLOW = 5, GREEN = 6, BLUE = 7;
@@ -118,26 +195,23 @@ class Game {
         this.availableHouses = TOTAL_HOUSES;
         this.availableHotels = TOTAL_HOTELS;
 
-        this.properties = [
-            // brown color group
-            [
-                new Property("Mediterranean Avenue", 2, 10, 30, 90, 160, 250, 60, 50, 30),
-                new Property("Baltic Avenue", 4, 20, 60, 180, 320, 450, 60, 50, 30),
-            ],
-            
-            // light blue color group
-            [
-                new Property("Oriental Avenue", 6, 30, 90, 270, 400, 550, 100, 50, 50),
-                new Property("Vermont Avenue", 6, 30, 90, 270, 400, 550, 100, 50, 50),
-                new Property("Connecticut Avenue", 8, 40, 100, 300, 450, 600, 120, 50, 60),
-            ],
-            
-            // pink color group
-            [
-                new Property("St. Charles Place", 10, 50, 150, 450, 625, 750, 140, 100, 70),
-                new Property("States Avenue", 10, 50, 150, 450, 625, 750, 140, 100, 70),
-                new Property("Virginia Avenue", 12, 60, 180, 500, 700, 900, 160, 100, 80),
-            ],
+        this.squares = [
+            new CornerSquare("GO", "Collect 200&cent; as you pass"),
+            new ColorProperty("Mediterranean Avenue", 0, 2, 10, 30, 90, 160, 250, 60, 50, 30),
+            new CommunityChestSquare(),
+            new ColorProperty("Baltic Avenue", 0, 4, 20, 60, 180, 320, 450, 60, 50, 30),
+            new TaxSquare("Income Tax", 200, "&loz;"),
+            new RailroadProperty("Reading Railroad"),
+            new ColorProperty("Oriental Avenue", 1, 6, 30, 90, 270, 400, 550, 100, 50, 50),
+            new ChanceSquare(),
+            new ColorProperty("Vermont Avenue", 1, 6, 30, 90, 270, 400, 550, 100, 50, 50),
+            new ColorProperty("Connecticut Avenue", 1, 8, 40, 100, 300, 450, 600, 120, 50, 60),
+            new CornerSquare("In Jail", "Just Visiting"),
+
+            new ColorProperty("St. Charles Place", 2, 10, 50, 150, 450, 625, 750, 140, 100, 70),
+            new UtilityProperty("Electric Company", 150, 75, "&#x1F4A1;"),
+            new ColorProperty("States Avenue", 2, 10, 50, 150, 450, 625, 750, 140, 100, 70),
+            new ColorProperty("Virginia Avenue", 2, 12, 60, 180, 500, 700, 900, 160, 100, 80),
         
             // orange color group
             [
@@ -152,7 +226,7 @@ class Game {
                 new Property("Indiana Avenue", 18, 90, 250, 700, 875, 1050, 220, 150, 110),
                 new Property("Illinois Avenue", 20, 100, 300, 750, 925, 1100, 240, 150, 120),
             ],
-            
+            // Water works logo "&#x1F6B0;"
             // yellow color group
             [
                 new Property("Atlantic Avenue", 22, 110, 330, 800, 975, 1150, 260, 150, 130),
