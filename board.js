@@ -1,44 +1,3 @@
-const properties = [
-    // brown color group
-    { name: "Mediterrean Avenue", cost: 60 },
-    { name: "Baltic Avenue", cost: 60 },
-
-    // light blue color group
-    { name: "Oriental Avenue", cost: 100 },
-    { name: "Vermont Avenue", cost: 100 },
-    { name: "Connecticut Avenue", cost: 120 },
-
-    // pink color group
-    { name: "St. Charles Place", cost: 140 },
-    { name: "States Avenue", cost: 140 },
-    { name: "Virginia Avenue", cost: 160 },
-
-    // orange color group 
-    { name: "St. James Place", cost: 180 },
-    { name: "Tennessee Avenue", cost: 180 },
-    { name: "New York Avenue", cost: 200 },
-
-    // red color group
-    { name: "Kentucky Avenue", cost: 220 },
-    { name: "Indiana Avenue", cost: 220 },
-    { name: "Illinois Avenue", cost: 240 },
-
-    // yellow color group
-    { name: "Atlantic Avenue", cost: 260 },
-    { name: "Ventnor Avenue", cost: 260 },
-    { name: "Marvin Gardens", cost: 280 },
-
-    // green color group
-    { name: "Pacific Avenue", cost: 300 },
-    { name: "North Carolina Avenue", cost: 300 },
-    { name: "Pennsylavania Avenue", cost: 320 },
-
-    // dark blue color group
-    { name: "Park Place", cost: 350 },
-    { name: "Boardwalk", cost: 400 },
-
-];
-
 const propertyColors = [
     // brown
     "rgb(90, 50, 20)",
@@ -65,22 +24,21 @@ const propertyColors = [
     "rgb(30, 50, 150)",
 ];
 
-const railroads = [
-    { name: "Reading Railroad", cost: 200 },
-    { name: "Pennsylavania Railroad", cost: 200 },
-    { name: "B. & O. Railroad", cost: 200 },
-    { name: "Short Line", cost: 200 },
-]
+function property(name, color, cost, owned) {
+    let owner = owned;
+    if (owner == null) {
+        owner = '';
+    }
 
-function property(name, color, cost) {
+    // TODO: use title attribute to produce a hover tooltip for the stringified owner name
+
     return `
-    <div class="space" owned="1" title="Owned by AA">
+    <div class="space" owned="${owner}">
         <div class="space-color" style="background-color: ${color}"></div>
 
         <div class="space-content">
             <p>${name}</p>
             <p>${cost}&cent;</p>
-             
         </div>
     </div>
     `;
@@ -94,14 +52,21 @@ function corner(style) {
     `;
 }
 
-function iconic(name, icon, cost) {
-    var classList = "";
-    if (icon.includes("?")) {
+function iconic(name, icon, cost, owned) {
+    let classList = "";
+    if (icon.includes("&quest;")) {
         classList = "chance";
     }
 
+    let owner = owned;
+    if (owner == null) {
+        owner = '';
+    }
+
+    // TODO: use `title` attribute to provide stringified owner name
+
     return `
-    <div class="space ${classList}">
+    <div class="space ${classList}" owned="${owner}">
         <p>${name}</p>
         <p class="icon">${icon}</p>
         <p>${cost}</p>
@@ -109,28 +74,39 @@ function iconic(name, icon, cost) {
     `;
 }
 
-function railraod(railid, cost) {
-    // icon = &#x1F686;
+function utility(name, icon, cost, owned) {
+    return iconic(name, icon, cost + "&cent;", owned);
+}
+
+function railroad(name, cost, owned) {
+    return iconic(name, "&#x1F686;", cost + "&cent;", owned)
+}
+
+function tax(name, icon, cost) {
+    return iconic(name, icon, `Pay ${cost}&cent;`);
 }
 
 
 class BoardProperty extends HTMLElement {
+    static observedAttributes = ["owned"];
+
     constructor() {
         super();
     }
 
+    rebuild() {
+        const square = this.getAttribute('square');
+        const owner = this.getAttribute('owned');
+        const ref = monopolyGame.squares[square];
+        this.innerHTML = property(ref.name, propertyColors[ref.color], ref.cost, owner);
+    }
+
     connectedCallback() {
-        if (!document.head.getHTML().includes("board.css")) {
-            document.head.insertAdjacentHTML('afterbegin', `
-                <link rel="stylesheet" href="board.css">
-            `);
-        }
+        this.rebuild();
+    }
 
-        const name = this.getAttribute('name');
-        const color = this.getAttribute('color');
-        const cost = this.getAttribute('cost');
-
-        this.innerHTML = property(name, color, cost);
+    attributeChangedCallback(name, oldValue, newValue) {
+        this.rebuild();
     }
 }
 
@@ -140,14 +116,8 @@ class BoardCorner extends HTMLElement {
     }
 
     connectedCallback() {
-        if (!document.head.getHTML().includes("board.css")) {
-            document.head.insertAdjacentHTML('afterbegin', `
-                <link rel="stylesheet" href="board.css">
-            `);
-        }
-
         const style = this.getAttribute('style');
-
+        // TODO: extract the square attribute
         this.innerHTML = corner(style);
     }
 }
@@ -158,20 +128,53 @@ class BoardIconic extends HTMLElement {
     }
 
     connectedCallback() {
-        if (!document.head.getHTML().includes("board.css")) {
-            document.head.insertAdjacentHTML('afterbegin', `
-                <link rel="stylesheet" href="board.css">
-            `);
-        }
+        const square = this.getAttribute('square');
+        const ref = monopolyGame.squares[square];
+        this.innerHTML = iconic(ref.name, ref.icon, ref.cost);
+    }
+}
 
-        const name = this.getAttribute('name');
-        const icon = this.getAttribute('icon');
-        const cost = this.getAttribute('cost');
+class BoardRailroad extends HTMLElement {
+    constructor() {
+        super();
+    }
 
-        this.innerHTML = iconic(name, icon, cost);
+    connectedCallback() {
+        const square = this.getAttribute('square');
+        const owner = this.getAttribute('owned');
+        const ref = monopolyGame.squares[square];
+        this.innerHTML = railroad(ref.name, ref.cost, owner);
+    }
+}
+
+class BoardUtility extends HTMLElement {
+    constructor() {
+        super();
+    }
+
+    connectedCallback() {
+        const square = this.getAttribute('square');
+        const owner = this.getAttribute('owned');
+        const ref = monopolyGame.squares[square];
+        this.innerHTML = utility(ref.name, ref.icon, ref.cost, owner);
+    }
+}
+
+class BoardTax extends HTMLElement {
+    constructor() {
+        super();
+    }
+
+    connectedCallback() {
+        const square = this.getAttribute('square');
+        const ref = monopolyGame.squares[square];
+        this.innerHTML = tax(ref.name, ref.icon, ref.cost);
     }
 }
 
 customElements.define('board-property', BoardProperty);
 customElements.define('board-corner', BoardCorner);
 customElements.define('board-iconic', BoardIconic);
+customElements.define('board-railroad', BoardRailroad);
+customElements.define('board-utility', BoardUtility);
+customElements.define('board-tax', BoardTax);

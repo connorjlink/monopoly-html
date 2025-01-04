@@ -4,13 +4,10 @@ function logMessage(message) {
     outputLog.innerText += message + '\n';
 }
 
-
 const TOTAL_HOUSES = 32;
 const TOTAL_HOTELS = 12;
 
 const propertyContainer = document.getElementById("property-container");
-
-//Water works icon &#x1F6B0;
 
 class AbstractSquare {
     constructor(name, color, cost, mortval, icon) {
@@ -20,6 +17,8 @@ class AbstractSquare {
         this.mortval = mortval;
         this.icon = icon;
         this.improvementState = 0;
+        this.isMortgaged = false;
+        this.owned = null;
     }
 
     tryImprove(player, game) {
@@ -69,7 +68,6 @@ class ColorProperty extends AbstractSquare {
         this.rent4 = rent4;
         this.rent5 = rent5;
         this.devcost = devcost;
-        this.isMortgaged = false;
     }
 
     canImprove() {
@@ -106,9 +104,9 @@ class ColorProperty extends AbstractSquare {
 }
 
 class RailroadProperty extends AbstractSquare {
-    constructor(name, cost, mortval, icon) {
+    constructor(name, cost, mortval) {
         // no meaningful color
-        super(name, null, 200, 100, icon);
+        super(name, null, cost, mortval, "&#x1F686;");
     }
 
     canImprove() {
@@ -152,8 +150,8 @@ class CornerSquare extends AbstractSquare {
 
 class CommunityChestSquare extends AbstractSquare {
     constructor() {
-        // no meaningful color, cost, or mortval
-        super("Community Chest", null, null, null, "&#x1F4E6;");
+        // no meaningful color, mortval
+        super("Community Chest", null, "Follow Card Instructions", null, "&#x1F4E6;");
     }
 
     canImprove() {
@@ -168,7 +166,7 @@ class CommunityChestSquare extends AbstractSquare {
 class ChanceSquare extends AbstractSquare {
     constructor() {
         // no meaningful color, cost, or mortval
-        super("Chance", null, null, null, "&quest;");
+        super("Chance", null, "", null, "&quest;");
     }
 
     canImprove() {
@@ -195,61 +193,101 @@ class Game {
         this.availableHouses = TOTAL_HOUSES;
         this.availableHotels = TOTAL_HOTELS;
 
+        this.players = [];
+
+        this.currentTurn
+
         this.squares = [
+            // bottom edge
             new CornerSquare("GO", "Collect 200&cent; as you pass"),
-            new ColorProperty("Mediterranean Avenue", 0, 2, 10, 30, 90, 160, 250, 60, 50, 30),
+            new ColorProperty("Mediterranean Avenue", 0, 60, 30, 2, 10, 30, 90, 160, 250, 50),
             new CommunityChestSquare(),
-            new ColorProperty("Baltic Avenue", 0, 4, 20, 60, 180, 320, 450, 60, 50, 30),
+            new ColorProperty("Baltic Avenue", 0, 60, 30, 4, 20, 60, 180, 320, 450, 50),
             new TaxSquare("Income Tax", 200, "&loz;"),
-            new RailroadProperty("Reading Railroad"),
-            new ColorProperty("Oriental Avenue", 1, 6, 30, 90, 270, 400, 550, 100, 50, 50),
+            new RailroadProperty("Reading Railroad", 200, 100),
+            new ColorProperty("Oriental Avenue", 1, 100, 50, 6, 30, 90, 270, 400, 550, 50),
             new ChanceSquare(),
-            new ColorProperty("Vermont Avenue", 1, 6, 30, 90, 270, 400, 550, 100, 50, 50),
-            new ColorProperty("Connecticut Avenue", 1, 8, 40, 100, 300, 450, 600, 120, 50, 60),
+            new ColorProperty("Vermont Avenue", 1, 100, 50, 6, 30, 90, 270, 400, 550, 50),
+            new ColorProperty("Connecticut Avenue", 1, 120, 60, 8, 40, 100, 300, 450, 600, 50),
             new CornerSquare("In Jail", "Just Visiting"),
 
-            new ColorProperty("St. Charles Place", 2, 10, 50, 150, 450, 625, 750, 140, 100, 70),
+            // left edge
+            new ColorProperty("St. Charles Place", 2, 140, 70, 10, 50, 150, 450, 625, 750, 100),
             new UtilityProperty("Electric Company", 150, 75, "&#x1F4A1;"),
-            new ColorProperty("States Avenue", 2, 10, 50, 150, 450, 625, 750, 140, 100, 70),
-            new ColorProperty("Virginia Avenue", 2, 12, 60, 180, 500, 700, 900, 160, 100, 80),
+            new ColorProperty("States Avenue", 2, 140, 70, 10, 50, 150, 450, 625, 750, 100),
+            new ColorProperty("Virginia Avenue", 2, 160, 80, 12, 60, 180, 500, 700, 900, 100),
+            new RailroadProperty("Pennsylvania Railroad", 200, 100),
+            new ColorProperty("St. James Place", 3, 180, 90, 14, 70, 200, 550, 750, 950, 100),
+            new CommunityChestSquare(),
+            new ColorProperty("Tennessee Avenue", 3, 180, 90, 14, 70, 200, 550, 750, 950, 100),
+            new ColorProperty("New York Avenue", 3, 200, 100, 16, 80, 220, 600, 800, 1000, 100),
         
-            // orange color group
-            [
-                new Property("St. James Place", 14, 70, 200, 550, 750, 950, 180, 100, 90),
-                new Property("Tennessee Avenue", 14, 70, 200, 550, 750, 950, 180, 100, 90),
-                new Property("New York Avenue", 16, 80, 220, 600, 800, 1000, 200, 100, 100),
-            ],
-        
-            // red color group
-            [
-                new Property("Kentucky Avenue", 18, 90, 250, 700, 875, 1050, 220, 150, 110),
-                new Property("Indiana Avenue", 18, 90, 250, 700, 875, 1050, 220, 150, 110),
-                new Property("Illinois Avenue", 20, 100, 300, 750, 925, 1100, 240, 150, 120),
-            ],
-            // Water works logo "&#x1F6B0;"
-            // yellow color group
-            [
-                new Property("Atlantic Avenue", 22, 110, 330, 800, 975, 1150, 260, 150, 130),
-                new Property("Ventnor Avenue", 22, 110, 330, 800, 975, 1150, 260, 150, 130),
-                new Property("Marvin Gardens", 24, 120, 360, 850, 1025, 1200, 280, 150, 140),
-            ],
-            
-            // green color group
-            [
-                new Property("Pacific Avenue", 26, 130, 390, 900, 1100, 1275, 300, 200, 150),
-                new Property("North Carolina Avenue", 26, 130, 390, 900, 1100, 1275, 300, 200, 150),
-                new Property("Pennsylvania Avenue", 28, 150, 450, 1000, 1200, 1400, 320, 200, 160),
-            ],
-        
-            // dark blue color group
-            [
-                new Property("Park Place", 35, 175, 500, 1100, 1300, 1500, 350, 200, 175),
-                new Property("Boardwalk", 50, 200, 600, 1400, 1700, 2000, 400, 200, 200),
-            ],
-        ]
+            // top edge
+            new CornerSquare("Free Parking", "&#x1F697;"),
+            new ColorProperty("Kentucky Avenue", 4, 220, 110, 18, 90, 250, 700, 875, 1050, 150),
+            new ChanceSquare(),
+            new ColorProperty("Indiana Avenue", 4, 220, 110, 18, 90, 250, 700, 875, 1050, 150),
+            new ColorProperty("Illinois Avenue", 4, 240, 120, 20, 100, 300, 750, 925, 1100, 150),
+            new RailroadProperty("B. & O. Railroad", 200, 100),
+            new ColorProperty("Atlantic Avenue", 5, 260, 130, 22, 110, 330, 800, 975, 1150, 150),
+            new ColorProperty("Ventnor Avenue", 5, 260, 130, 22, 110, 330, 800, 975, 1150, 150),
+            new UtilityProperty("Water Works", 150, 75, "&#x1F6B0;"),
+            new ColorProperty("Marvin Gardens", 5, 280, 140, 24, 120, 360, 850, 1025, 1200, 150),
+            new CornerSquare("Go To Jail", "&#x1F6A8;"),
+
+            // right edge
+            new ColorProperty("Pacific Avenue", 6, 300, 150, 26, 130, 390, 900, 1100, 1275, 200),
+            new ColorProperty("North Carolina Avenue", 6, 300, 150, 26, 130, 390, 900, 1100, 1275, 200),
+            new CommunityChestSquare(),
+            new ColorProperty("Pennsylvania Avenue", 6, 320, 160, 28, 150, 450, 1000, 1200, 1400, 200),
+            new RailroadProperty("Short Line", 200, 100),
+            new ChanceSquare(),
+            new ColorProperty("Park Place", 7, 350, 175, 35, 175, 500, 1100, 1300, 1500, 200),
+            new TaxSquare("Luxury Tax", 100, "&#x1F48D;"),
+            new ColorProperty("Boardwalk", 7, 400, 200, 50, 200, 600, 1400, 1700, 2000, 200),
+        ];
     }
 
-    updateAvailableProperties() {
+    /*rebuildBoard() {
+        // NOTE: only the custom board tags will have this attribute
+        const squares = document.querySelectorAll("[square]");
+
+        for (let square of squares) {
+            const id = square.getAttribute("square");
+
+            switch (square.constructor) {
+                case ColorProperty:
+                    break;
+                
+                case RailroadProperty:
+                    break;
+
+                case UtilityProperty:
+                    break;
+
+                case CornerSquare:
+                    break;
+
+                case CommunityChestSquare:
+                    break;
+
+                case ChanceSquare:
+                    square.innerHTML = iconic()
+                    break;
+
+                case TaxSquare:
+                    square.innerHTML = iconic(square.name, square.icon, square.cost);
+                    break;
+
+                case AbstractSquare:
+                default:
+                    console.error("Cannot regenerate markup for " + square.constructor.name);
+                    break;
+            }
+        }
+    }*/
+
+    updateAvailableImprovements() {
         propertyContainer.innerHTML = `
             <tr>
                 <td>House</td>
@@ -269,7 +307,7 @@ class Game {
 }
 
 var monopolyGame = new Game();
-monopolyGame.updateAvailableProperties();
+monopolyGame.updateAvailableImprovements();
 
 class Player {
     constructor(name, color, turn) {
@@ -278,8 +316,12 @@ class Player {
         this.turn = turn;
         this.money = 1500;
         this.bailCards = 0;
-        this.properties = [];
         this.inJail = false;
+        this.squareNumber = 0; // start on GO
+    }
+
+    roll() {
+        
     }
 
     computeAssets() {
@@ -302,8 +344,7 @@ class Player {
 
         for (let property of this.properties) {
             if (property.isMortgaged) {
-                // mortgage value = 50%
-                // mortgage interest = 10%
+                // mortgage value = 50%, interest = 10%
                 sum += (property.value * 0.6);
             }
         }
@@ -336,10 +377,6 @@ class Player {
         }
     }
 }
-
-var currentTurn = 0;
-
-var players = []
 
 function insertPlayerHTML(player) {
     existingPlayers.insertAdjacentHTML("beforeend", `
@@ -388,13 +425,13 @@ function addPlayer() {
         playerName.classList.toggle("errored", false);
         playerName.value = '';
 
-        const index = players.length;
+        const index = monopolyGame.players.length;
 
         const color = colors[index];
         const turn = index;
 
         const player = new Player(name, color, turn);
-        players.push(player);
+        monopolyGame.players.push(player);
         insertPlayerHTML(player);
 
         if (index >= MAX_PLAYERS - 1) {
@@ -430,6 +467,6 @@ function randomizeTurnOrder() {
 } 
 
 function initializationSequence() {
-    
+    //rebuildBoard();
 }
 
