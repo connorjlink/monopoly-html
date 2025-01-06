@@ -1,3 +1,6 @@
+// property color group identifiers
+const BROWN = 0, LIGHT_BLUE = 1, PINK = 2, ORANGE = 3, RED = 4, YELLOW = 5, GREEN = 6, BLUE = 7;
+
 const propertyColors = [
     // brown
     "rgb(90, 50, 20)",
@@ -24,16 +27,20 @@ const propertyColors = [
     "rgb(30, 50, 150)",
 ];
 
-function property(name, color, cost, owned) {
+
+function property(name, color, cost, owned, target, highlight) {
     let owner = owned;
     if (owner == null) {
         owner = '';
     }
 
+    let targeted = (target == null ? "" : "targeted");
+    let highlighted = (highlight == null ? "" : "highlighted");
+
     // TODO: use title attribute to produce a hover tooltip for the stringified owner name
 
     return `
-    <div class="space" owned="${owner}">
+    <div class="space ${targeted} ${highlighted}" owned="${owner}">
         <div class="space-color" style="background-color: ${color}"></div>
 
         <div class="space-content">
@@ -44,29 +51,31 @@ function property(name, color, cost, owned) {
     `;
 }
 
-function corner(style) {
+function corner(target, highlight) {
+    let targeted = (target == null ? "" : "targeted");
+    let highlighted = (highlight == null ? "" : "highlighted");
+
     return `
-    <div class="corner" style="${style}">
+    <div class="corner ${targeted} ${highlighted}">
 
     </div>
     `;
 }
 
-function iconic(name, icon, cost, owned) {
-    let classList = "";
-    if (icon.includes("&quest;")) {
-        classList = "chance";
-    }
-
+function iconic(name, icon, cost, owned, target, highlight) {
     let owner = owned;
     if (owner == null) {
         owner = '';
     }
 
+    let chance = (icon.includes("&quest;") ? "chance" : "");
+    let targeted = (target == null ? "" : "targeted");
+    let highlighted = (highlight == null ? "" : "highlighted");
+
     // TODO: use `title` attribute to provide stringified owner name
 
     return `
-    <div class="space ${classList}" owned="${owner}">
+    <div class="space ${chance} ${targeted} ${highlighted}" owned="${owner}">
         <p>${name}</p>
         <p class="icon">${icon}</p>
         <p>${cost}</p>
@@ -74,21 +83,43 @@ function iconic(name, icon, cost, owned) {
     `;
 }
 
-function utility(name, icon, cost, owned) {
-    return iconic(name, icon, cost + "&cent;", owned);
+function draw(name, icon, cost, target, highlight) {
+    return iconic(name, icon, cost, null, target, highlight);
 }
 
-function railroad(name, cost, owned) {
-    return iconic(name, "&#x1F686;", cost + "&cent;", owned)
+function utility(name, icon, cost, owned, target, highlight) {
+    return iconic(name, icon, cost + "&cent;", owned, target, highlight);
 }
 
-function tax(name, icon, cost) {
-    return iconic(name, icon, `Pay ${cost}&cent;`);
+function railroad(name, cost, owned, target, highlight) {
+    return iconic(name, "&#x1F686;", cost + "&cent;", owned, target, highlight);
 }
 
+function tax(name, icon, cost, target, highlight) {
+    return iconic(name, icon, `Pay ${cost}&cent;`, null, target, highlight);
+}
+
+function wrap(markup, players) {
+    let playersMarkup = '';
+
+    if (players != null) {
+        let playersArray = players.split(',');
+
+        for (let player of playersArray) {
+            playersMarkup += `<span class="player${player}"></span>`;
+        }
+    }
+    
+    return `
+    <div class="space-wrapper">
+        ${markup}
+        ${playersMarkup}
+    </div>
+    `;
+}
 
 class BoardProperty extends HTMLElement {
-    static observedAttributes = ["owned"];
+    static observedAttributes = ["owned", "targeted", "highlighted", "players"];
 
     constructor() {
         super();
@@ -97,8 +128,12 @@ class BoardProperty extends HTMLElement {
     rebuild() {
         const square = this.getAttribute('square');
         const owner = this.getAttribute('owned');
+        const target = this.getAttribute('targeted');
+        const highlight = this.getAttribute('highlighted');
+        const players = this.getAttribute('players');
+
         const ref = monopolyGame.squares[square];
-        this.innerHTML = property(ref.name, propertyColors[ref.color], ref.cost, owner);
+        this.innerHTML = wrap(property(ref.name, propertyColors[ref.color], ref.cost, owner, target, highlight), players);
     }
 
     connectedCallback() {
@@ -111,70 +146,166 @@ class BoardProperty extends HTMLElement {
 }
 
 class BoardCorner extends HTMLElement {
+    static observedAttributes = ["owned", "targeted", "highlighted"];
+
     constructor() {
         super();
     }
 
-    connectedCallback() {
-        const style = this.getAttribute('style');
+    rebuild() {
+        const target = this.getAttribute('targeted');
+        const highlight = this.getAttribute('highlighted');
+        const players = this.getAttribute('players');
+
         // TODO: extract the square attribute
-        this.innerHTML = corner(style);
+        this.innerHTML = wrap(corner(target, highlight), players);
+    }
+
+    connectedCallback() {
+        this.rebuild();        
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        this.rebuild();
+    }
+}
+
+class BoardDraw extends HTMLElement {
+    static observedAttributes = ["owned", "targeted", "highlighted"];
+
+    constructor() {
+        super();
+    }
+
+    rebuild() {
+        const square = this.getAttribute('square');
+        const target = this.getAttribute('targeted');
+        const highlight = this.getAttribute('highlighted');
+        const players = this.getAttribute('players');
+
+        const ref = monopolyGame.squares[square];
+        this.innerHTML = wrap(draw(ref.name, ref.icon, ref.cost, target, highlight), players);
+    }
+
+    connectedCallback() {
+        this.rebuild();        
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        this.rebuild();
     }
 }
 
 class BoardIconic extends HTMLElement {
+    static observedAttributes = ["owned", "targeted", "highlighted"];
+
     constructor() {
         super();
     }
 
-    connectedCallback() {
+    rebuild() {
         const square = this.getAttribute('square');
+        const target = this.getAttribute('targeted');
+        const highlight = this.getAttribute('highlighted');
+        const players = this.getAttribute('players');
+
         const ref = monopolyGame.squares[square];
-        this.innerHTML = iconic(ref.name, ref.icon, ref.cost);
+        this.innerHTML = wrap(iconic(ref.name, ref.icon, ref.cost, target, highlight), players);
+    }
+
+    connectedCallback() {
+        this.rebuild();        
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        this.rebuild();
     }
 }
 
 class BoardRailroad extends HTMLElement {
+    static observedAttributes = ["owned", "targeted", "highlighted"];
+
     constructor() {
         super();
     }
 
-    connectedCallback() {
+    rebuild() {
         const square = this.getAttribute('square');
         const owner = this.getAttribute('owned');
+        const target = this.getAttribute('targeted');
+        const highlight = this.getAttribute('highlighted');
+        const players = this.getAttribute('players');
+
         const ref = monopolyGame.squares[square];
-        this.innerHTML = railroad(ref.name, ref.cost, owner);
+        this.innerHTML = wrap(railroad(ref.name, ref.cost, owner, target, highlight), players);
+    }
+
+    connectedCallback() {
+        this.rebuild();        
+    }
+
+    attributeChangedCallback() {
+        this.rebuild();
     }
 }
 
 class BoardUtility extends HTMLElement {
+    static observedAttributes = ["owned", "targeted", "highlighted"];
+
     constructor() {
         super();
     }
 
-    connectedCallback() {
+    rebuild() {
         const square = this.getAttribute('square');
         const owner = this.getAttribute('owned');
+        const target = this.getAttribute('targeted');
+        const highlight = this.getAttribute('highlighted');
+        const players = this.getAttribute('players');
+
         const ref = monopolyGame.squares[square];
-        this.innerHTML = utility(ref.name, ref.icon, ref.cost, owner);
+        this.innerHTML = wrap(utility(ref.name, ref.icon, ref.cost, owner, target, highlight), players);
+    }
+
+    connectedCallback() {
+        this.rebuild();        
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        this.rebuild();
     }
 }
 
 class BoardTax extends HTMLElement {
+    static observedAttributes = ["owned", "targeted", "highlighted"];
+
     constructor() {
         super();
     }
 
-    connectedCallback() {
+    rebuild() {
         const square = this.getAttribute('square');
+        const target = this.getAttribute('targeted');
+        const highlight = this.getAttribute('highlighted');
+        const players = this.getAttribute('players');
+
         const ref = monopolyGame.squares[square];
-        this.innerHTML = tax(ref.name, ref.icon, ref.cost);
+        this.innerHTML = wrap(tax(ref.name, ref.icon, ref.cost, target, highlight), players);
+    }
+
+    connectedCallback() {
+        this.rebuild();        
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        this.rebuild();
     }
 }
 
 customElements.define('board-property', BoardProperty);
 customElements.define('board-corner', BoardCorner);
 customElements.define('board-iconic', BoardIconic);
+customElements.define('board-draw', BoardDraw);
 customElements.define('board-railroad', BoardRailroad);
 customElements.define('board-utility', BoardUtility);
 customElements.define('board-tax', BoardTax);

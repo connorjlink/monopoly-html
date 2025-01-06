@@ -1,7 +1,8 @@
 const outputLog = document.getElementById("output-log");
 
 function logMessage(message) {
-    outputLog.innerText += message + '\n';
+    outputLog.textContent += message + '\n';
+    console.log(message);
 }
 
 const TOTAL_HOUSES = 32;
@@ -185,17 +186,16 @@ class TaxSquare extends AbstractSquare {
     }
 }
 
-// property color group identifiers
-const BROWN = 0, LIGHT_BLUE = 1, PINK = 2, ORANGE = 3, RED = 4, YELLOW = 5, GREEN = 6, BLUE = 7;
-
 class Game {
     constructor() {
         this.availableHouses = TOTAL_HOUSES;
         this.availableHotels = TOTAL_HOTELS;
 
         this.players = [];
+        this.currentTurn = 0;
 
-        this.currentTurn
+        this.squaresMarkup = Array.from(document.querySelectorAll('[square]'));
+        this.squaresMarkup.sort((a, b) => a.getAttribute('square') - b.getAttribute('square'));
 
         this.squares = [
             // bottom edge
@@ -287,7 +287,7 @@ class Game {
         }
     }*/
 
-    updateAvailableImprovements() {
+    rebuildAvailableImprovements() {
         propertyContainer.innerHTML = `
             <tr>
                 <td>House</td>
@@ -307,7 +307,14 @@ class Game {
 }
 
 var monopolyGame = new Game();
-monopolyGame.updateAvailableImprovements();
+monopolyGame.rebuildAvailableImprovements();
+
+// Credit: MDN
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 class Player {
     constructor(name, color, turn) {
@@ -317,11 +324,45 @@ class Player {
         this.money = 1500;
         this.bailCards = 0;
         this.inJail = false;
-        this.squareNumber = 0; // start on GO
+        this.currentSquare = 0; // start on GO
     }
 
     roll() {
-        
+        let die1 = getRandomInt(1, 6);
+        let die2 = getRandomInt(1, 6);
+
+        let sum = die1 + die2;
+
+        let doublesString = (die1 === die2) ? '(doubles)' : '';
+
+        logMessage(`${this.name} rolled ${sum} ${doublesString}`);
+        // ensure squares wrap around
+        let targetSquare = (this.currentSquare + sum) % monopolyGame.squares.length;
+
+        // TODO: highlight all squares along the way
+        //monopolyGame.squares[targetSquare].
+        for (let square of monopolyGame.squaresMarkup) {
+            square.removeAttribute('highlighted');
+            square.removeAttribute('targeted');
+        }
+
+        for (let i = this.currentSquare; i < this.currentSquare + sum; i++) {
+            monopolyGame.squaresMarkup[i % monopolyGame.squaresMarkup.length].setAttribute('highlighted', '');
+        }
+
+        monopolyGame.squaresMarkup[targetSquare].removeAttribute('highlighted');
+        monopolyGame.squaresMarkup[targetSquare].setAttribute('targeted', '');
+
+        // TODO: animate
+    }
+
+    trade() {
+        logMessage("Trading is not supported at this time");
+    }
+
+    endTurn() {
+        monopolyGame.currentTurn = (monopolyGame.currentTurn + 1) % monopolyGame.players.length;
+        logMessage(`${this.name}'s turn has ended; it's now ${monopolyGame.players[monopolyGame.currentTurn].name}'s turn`);
     }
 
     computeAssets() {
@@ -330,8 +371,10 @@ class Player {
         // getting out of jail costs $50, so each card is "worth" this much
         sum += (this.bailCards * 50);
 
-        for (let property of this.properties) {
-            sum += property.value;
+        for (let square of monopolyGame.squares) {
+            if (square.owned === this.turn) {
+                sum += property.value;
+            }
         }
 
         sum += this.money;
@@ -342,10 +385,12 @@ class Player {
     computeLiabilities() {
         let sum = 0;
 
-        for (let property of this.properties) {
-            if (property.isMortgaged) {
-                // mortgage value = 50%, interest = 10%
-                sum += (property.value * 0.6);
+        for (let square of monopolyGame.squares) {
+            if (square.owned === this.turn) {
+                if (square.isMortgaged) {
+                    // mortgage value = 50%, interest = 10%
+                    sum += (property.value * 0.6);
+                }
             }
         }
 
@@ -364,7 +409,6 @@ class Player {
         if (true) {
             this.money -= cost;
             property.improvementState++;
-            
         }
     }
 
@@ -373,7 +417,6 @@ class Player {
         if (true) {
             this.money += cost;
             property.improvementState++;
-
         }
     }
 }

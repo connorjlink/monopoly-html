@@ -2,7 +2,6 @@
 <html>
     <head>
         <title>Monopoly</title>
-
         <link rel="stylesheet" href="layout.css">
         <link rel="stylesheet" href="index.css">
         <link rel="stylesheet" href="theme.css">
@@ -71,9 +70,9 @@
 
                         <h2>Actions</h2>
                         <div class="player-actions hstack">
-                            <button>Roll</button>
-                            <button>Trade</button>
-                            <button>End Turn</button>
+                            <button onclick="monopolyGame.players[monopolyGame.currentTurn].roll()">Roll</button>
+                            <button onclick="monopolyGame.players[monopolyGame.currentTurn].trade()">Trade</button>
+                            <button onclick="monopolyGame.players[monopolyGame.currentTurn].endTurn()">End Turn</button>
                         </div>
                     </div>
             
@@ -82,7 +81,7 @@
                             <!-- board top -->
                             <div class="hstack side" id="s3">
                                 <!-- TODO: go to jail corner -->
-                                <board-corner square="30" style="border-width: 1px 1px 4px 4px"></board-corner>
+                                <board-corner square="30"></board-corner>
                                 <board-property square="29"></board-property> <!-- Marvin Gardens -->
                                 <board-utility square="28"></board-utility>   <!-- Water Works -->
                                 <board-property square="27"></board-property> <!-- Ventnor Avenue -->
@@ -90,10 +89,10 @@
                                 <board-railroad square="25"></board-railroad> <!-- B. & O. Railroad -->
                                 <board-property square="24"></board-property> <!-- Illinois Avenue -->
                                 <board-property square="23"></board-property> <!-- Indiana Avenue -->
-                                <board-iconic square="22"></board-iconic>     <!-- Chance -->
+                                <board-draw square="22"></board-draw>         <!-- Chance -->
                                 <board-property square="21"></board-property> <!-- Kentucky Avenue -->
                                 <!-- TODO: free parking corner -->
-                                <board-corner square="20" style="border-width: 1px 4px 4px 1px"></board-corner> 
+                                <board-corner square="20"></board-corner> 
                             </div>
                 
                             <!-- board left and right -->
@@ -104,7 +103,7 @@
                                         <div class="hstack side" id="s2">
                                             <board-property square="19"></board-property> <!-- New York Avenue -->
                                             <board-property square="18"></board-property> <!-- Tennessee Avenue -->
-                                            <board-iconic square="17"></board-iconic>     <!-- Community Chest -->
+                                            <board-draw square="17"></board-draw>         <!-- Community Chest -->
                                             <board-property square="16"></board-property> <!-- St. James Place -->
                                             <board-railroad square="15"></board-railroad> <!-- Pennsylvania Railroad -->
                                             <board-property square="14"></board-property> <!-- Virginia Avenue -->
@@ -118,12 +117,12 @@
                                 <!-- board right -->
                                 <div class="hstack side" id="s4">
                                     <board-property square="39"></board-property> <!-- Boardwalk -->
-                                    <board-tax square="38"></board-tax>           <!-- Luxury Tax -->
+                                    <board-tax square="38" players="1,2,3,4,5,6"></board-tax>           <!-- Luxury Tax -->
                                     <board-property square="37"></board-property> <!-- Park Place -->
-                                    <board-iconic square="36"></board-iconic>     <!-- Chance -->
+                                    <board-draw square="36"></board-draw>         <!-- Chance -->
                                     <board-railroad square="35"></board-railroad> <!-- Short Line-->
                                     <board-property square="34"></board-property> <!-- Pennsylvania Avenue -->
-                                    <board-iconic square="33"></board-iconic>     <!-- Community Chest -->
+                                    <board-draw square="33"></board-draw>         <!-- Community Chest -->
                                     <board-property square="32"></board-property> <!-- North Carolina Avenue -->
                                     <board-property square="31"></board-property> <!-- Pacific Avenue -->
                                 </div>  
@@ -132,18 +131,18 @@
                             <!-- board bottom -->
                             <div class="hstack side" id="s1">
                                 <!-- TODO: jail corner -->
-                                <board-corner square="10" style="border-width: 1px 1px 4px 4px"></board-corner>
+                                <board-corner square="10"></board-corner>
                                 <board-property square="9"></board-property> <!-- Connecticut Avenue-->
                                 <board-property square="8"></board-property> <!-- Vermont Avenue -->
-                                <board-iconic square="7"></board-iconic>     <!-- Chance -->
+                                <board-draw square="7"></board-draw>         <!-- Chance -->
                                 <board-property square="6"></board-property> <!-- Oriental Avenue -->
                                 <board-railroad square="5"></board-railroad> <!-- Reading Railroad-->
                                 <board-tax square="4"></board-tax>           <!-- Income Tax-->
                                 <board-property square="3"></board-property> <!-- Baltic Avenue -->
-                                <board-iconic square="2"></board-iconic>     <!-- Commmunity Chest -->
+                                <board-draw square="2"></board-draw>         <!-- Commmunity Chest -->
                                 <board-property square="1"></board-property> <!-- Mediterranean Avenue -->
                                 <!-- TODO: go corner -->
-                                <board-corner square="0" style="border-width: 1px 4px 4px 1px"></board-corner>
+                                <board-corner square="0"></board-corner>
                             </div>
                         </div>
                     </div>
