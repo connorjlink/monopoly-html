@@ -70,9 +70,9 @@
 
                         <h2>Actions</h2>
                         <div class="player-actions hstack">
-                            <button onclick="monopolyGame.players[monopolyGame.currentTurn].roll()">Roll</button>
-                            <button onclick="monopolyGame.players[monopolyGame.currentTurn].trade()">Trade</button>
-                            <button onclick="monopolyGame.players[monopolyGame.currentTurn].endTurn()">End Turn</button>
+                            <button id="roll-button" onclick="monopolyGame.players[monopolyGame.currentTurn].roll()">Roll</button>
+                            <button id="trade-button" onclick="monopolyGame.players[monopolyGame.currentTurn].trade()">Trade</button>
+                            <button id="endturn-button" onclick="monopolyGame.players[monopolyGame.currentTurn].endTurn()">End Turn</button>
                         </div>
                     </div>
             
@@ -117,7 +117,7 @@
                                 <!-- board right -->
                                 <div class="hstack side" id="s4">
                                     <board-property square="39"></board-property> <!-- Boardwalk -->
-                                    <board-tax square="38" players="1,2,3,4,5,6"></board-tax>           <!-- Luxury Tax -->
+                                    <board-tax square="38"></board-tax>           <!-- Luxury Tax -->
                                     <board-property square="37"></board-property> <!-- Park Place -->
                                     <board-draw square="36"></board-draw>         <!-- Chance -->
                                     <board-railroad square="35"></board-railroad> <!-- Short Line-->

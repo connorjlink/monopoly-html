@@ -203,7 +203,8 @@ class Game {
             new ColorProperty("Mediterranean Avenue", 0, 60, 30, 2, 10, 30, 90, 160, 250, 50),
             new CommunityChestSquare(),
             new ColorProperty("Baltic Avenue", 0, 60, 30, 4, 20, 60, 180, 320, 450, 50),
-            new TaxSquare("Income Tax", 200, "&loz;"),
+            //new TaxSquare("Income Tax", 200, "&loz;"),
+            new TaxSquare("Income Tax", 200, `<img src="income.svg" width="30">`),
             new RailroadProperty("Reading Railroad", 200, 100),
             new ColorProperty("Oriental Avenue", 1, 100, 50, 6, 30, 90, 270, 400, 550, 50),
             new ChanceSquare(),
@@ -287,6 +288,28 @@ class Game {
         }
     }*/
 
+    repositionPlayers() {
+        for (let square of this.squaresMarkup) {
+            square.removeAttribute('players');
+        }
+
+        for (let player of monopolyGame.players) {
+            let current = this.squaresMarkup[player.currentSquare].getAttribute('players');
+            current = (current == null ? '' : current);
+            this.squaresMarkup[player.currentSquare].setAttribute('players', current + `,${player.turn + 1}`);
+        }
+    }
+
+    resetCurrentTurn() {
+        let turns = turnContainer.children;
+
+        for (let i = 0; i < turns.length; i++) {
+            turns[i].classList.toggle('active', false);
+        }
+
+        turns[this.currentTurn].classList.toggle('active', true);
+    }
+
     rebuildAvailableImprovements() {
         propertyContainer.innerHTML = `
             <tr>
@@ -303,6 +326,47 @@ class Game {
                 <td>${TOTAL_HOTELS}</td>
             </tr>
         `;
+    }
+
+    unhighlightAll() {
+        for (let square of monopolyGame.squaresMarkup) {
+            square.removeAttribute('highlighted');
+            square.removeAttribute('targeted');
+        }
+    }
+
+    takePlayerAction() {
+        let player = this.players[this.currentTurn];
+        let square = this.squares[player.currentSquare];
+
+        switch (square.constructor) {
+            case ColorProperty:
+                break;
+
+            case TaxSquare: 
+                if (player.currentSquare === 4) { // "income tax" 
+                    let success = player.withdraw(200);
+                    if (success) {
+                        logMessage(`${player.name} has paid 200&cent; in income tax.`);
+                    } else {
+                        this.bankrupt(player);
+                    }
+                } else if (player.currentSquare === 38) {
+                    let success = player.withdraw(100);
+
+                    if (success) {
+                        logMessage(`${player.name} has paid 100&cent; in luxury tax.`);
+                    } else {
+                        this.bankrupt(player);
+                    }
+                }
+        }
+
+    }
+
+    bankrupt(player) {
+        // TODO: remove player from active pools everywhere and cede improvements to the bank and acution the rest of the properties
+        logMessage(`${player.name} has gone bankrupt.`);
     }
 }
 
@@ -328,30 +392,31 @@ class Player {
     }
 
     roll() {
+        disableRoll();
+        enableEndTurn();
+
         let die1 = getRandomInt(1, 6);
         let die2 = getRandomInt(1, 6);
 
         let sum = die1 + die2;
 
-        let doublesString = (die1 === die2) ? '(doubles)' : '';
+        let doublesString = (die1 === die2) ? '(doubles) ' : '';
 
-        logMessage(`${this.name} rolled ${sum} ${doublesString}`);
-        // ensure squares wrap around
         let targetSquare = (this.currentSquare + sum) % monopolyGame.squares.length;
+        logMessage(`${this.name} rolled ${sum} ${doublesString}and landed on ${monopolyGame.squares[targetSquare].name}.`);
+        // ensure squares wrap around
 
         // TODO: highlight all squares along the way
         //monopolyGame.squares[targetSquare].
-        for (let square of monopolyGame.squaresMarkup) {
-            square.removeAttribute('highlighted');
-            square.removeAttribute('targeted');
-        }
-
+        monopolyGame.unhighlightAll();
         for (let i = this.currentSquare; i < this.currentSquare + sum; i++) {
             monopolyGame.squaresMarkup[i % monopolyGame.squaresMarkup.length].setAttribute('highlighted', '');
         }
 
         monopolyGame.squaresMarkup[targetSquare].removeAttribute('highlighted');
         monopolyGame.squaresMarkup[targetSquare].setAttribute('targeted', '');
+
+        monopolyGame.players[monopolyGame.currentTurn].currentSquare = targetSquare;
 
         // TODO: animate
     }
@@ -360,9 +425,38 @@ class Player {
         logMessage("Trading is not supported at this time");
     }
 
+    deposit(amount) {
+        this.money += amount;
+    }
+
+    withdraw(amount) {
+        if (this.money >= amount) {
+            this.money -= amount;
+            return true;
+        } else {
+            let difference = Math.abs()
+
+            return this.raiseCapital(difference);
+        }
+    }
+
+    raiseCapital(amount) {
+        // TODO: auction, etc. to raise capital
+        return true;
+    }
+
     endTurn() {
+        monopolyGame.takePlayerAction();
+
+        monopolyGame.unhighlightAll();
+        monopolyGame.repositionPlayers();
         monopolyGame.currentTurn = (monopolyGame.currentTurn + 1) % monopolyGame.players.length;
-        logMessage(`${this.name}'s turn has ended; it's now ${monopolyGame.players[monopolyGame.currentTurn].name}'s turn`);
+        monopolyGame.resetCurrentTurn();
+
+        enableRoll();
+        disableEndTurn();
+
+        logMessage(`${this.name}'s turn has ended; it's now ${monopolyGame.players[monopolyGame.currentTurn].name}'s turn to roll.`);
     }
 
     computeAssets() {
@@ -430,7 +524,7 @@ function insertPlayerHTML(player) {
         </tr>
     `);
 
-    turnsPlayers.insertAdjacentHTML("beforeend", `
+    turnContainer.insertAdjacentHTML("beforeend", `
         <div class="turn">
             <div class="player-color">
                 <div class="circle" style="background: ${player.color}"></div>
@@ -457,9 +551,12 @@ var colors = ["red", "orange", "yellow", "green", "blue", "purple"];
 const playerName = document.getElementById("name-input");
 
 const existingPlayers = document.getElementById("existing-players");
-const turnsPlayers = document.getElementById("turn-container");
+const turnContainer = document.getElementById("turn-container");
 const assetsPlayers = document.getElementById("assets-players");
 
+const rollButton = document.getElementById("roll-button");
+const tradeButton = document.getElementById("trade-button");
+const endTurnButton = document.getElementById("endturn-button");
 
 function addPlayer() {
     const name = playerName.value;
@@ -496,20 +593,40 @@ function shuffleArray(array) {
 
 
 function randomizeTurnOrder() {
-    shuffleArray(players);
+    shuffleArray(monopolyGame.players);
 
     existingPlayers.innerHTML = '';
-    turnsPlayers.innerHTML = '';
+    turnContainer.innerHTML = '';
     assetsPlayers.innerHTML = '';
     
-    for (var i = 0; i < players.length; i++) {
-        let player = players[i];
+    for (var i = 0; i < monopolyGame.players.length; i++) {
+        let player = monopolyGame.players[i];
         player.turn = i;
         insertPlayerHTML(player);
     }
 } 
 
+function disableRoll() {
+    rollButton.toggleAttribute('disabled', true);
+}
+
+function enableRoll() {
+    rollButton.toggleAttribute('disabled', false);
+}
+
+function disableEndTurn() {
+    endTurnButton.toggleAttribute('disabled', true)
+}
+
+function enableEndTurn() {
+    endTurnButton.toggleAttribute('disabled', false);
+}
+
 function initializationSequence() {
     //rebuildBoard();
+    disableEndTurn();
+    monopolyGame.repositionPlayers();
+    monopolyGame.resetCurrentTurn();
+    logMessage(`Welcome to Monopoly! It's ${monopolyGame.players[0].name}'s turn to roll.`);
 }
 

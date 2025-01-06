@@ -121,7 +121,7 @@ hr {
     margin: auto;
 }
 
-.turn:hover::after {
+.turn.active::after {
     border-bottom: 1px solid var(--foreground-l);
     width: 100%;
 }

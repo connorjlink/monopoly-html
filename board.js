@@ -92,7 +92,9 @@ function utility(name, icon, cost, owned, target, highlight) {
 }
 
 function railroad(name, cost, owned, target, highlight) {
-    return iconic(name, "&#x1F686;", cost + "&cent;", owned, target, highlight);
+    //return iconic(name, "&#x1F686;", cost + "&cent;", owned, target, highlight);
+    return iconic(name, `<img src="train.svg" width="60">`, cost + "&cent;", owned, target, highlight);
+
 }
 
 function tax(name, icon, cost, target, highlight) {
@@ -102,7 +104,10 @@ function tax(name, icon, cost, target, highlight) {
 function wrap(markup, players) {
     let playersMarkup = '';
 
+    const trim = (str, chars) => str.split(chars).filter(Boolean).join(chars);
+
     if (players != null) {
+        players = trim(players, ',');
         let playersArray = players.split(',');
 
         for (let player of playersArray) {
@@ -146,7 +151,7 @@ class BoardProperty extends HTMLElement {
 }
 
 class BoardCorner extends HTMLElement {
-    static observedAttributes = ["owned", "targeted", "highlighted"];
+    static observedAttributes = ["owned", "targeted", "highlighted", "players"];
 
     constructor() {
         super();
@@ -171,7 +176,7 @@ class BoardCorner extends HTMLElement {
 }
 
 class BoardDraw extends HTMLElement {
-    static observedAttributes = ["owned", "targeted", "highlighted"];
+    static observedAttributes = ["owned", "targeted", "highlighted", "players"];
 
     constructor() {
         super();
@@ -197,7 +202,7 @@ class BoardDraw extends HTMLElement {
 }
 
 class BoardIconic extends HTMLElement {
-    static observedAttributes = ["owned", "targeted", "highlighted"];
+    static observedAttributes = ["owned", "targeted", "highlighted", "players"];
 
     constructor() {
         super();
@@ -223,7 +228,7 @@ class BoardIconic extends HTMLElement {
 }
 
 class BoardRailroad extends HTMLElement {
-    static observedAttributes = ["owned", "targeted", "highlighted"];
+    static observedAttributes = ["owned", "targeted", "highlighted", "players"];
 
     constructor() {
         super();
@@ -250,7 +255,7 @@ class BoardRailroad extends HTMLElement {
 }
 
 class BoardUtility extends HTMLElement {
-    static observedAttributes = ["owned", "targeted", "highlighted"];
+    static observedAttributes = ["owned", "targeted", "highlighted", "players"];
 
     constructor() {
         super();
@@ -277,7 +282,7 @@ class BoardUtility extends HTMLElement {
 }
 
 class BoardTax extends HTMLElement {
-    static observedAttributes = ["owned", "targeted", "highlighted"];
+    static observedAttributes = ["owned", "targeted", "highlighted", "players"];
 
     constructor() {
         super();
