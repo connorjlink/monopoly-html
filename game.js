@@ -22,6 +22,10 @@ class AbstractSquare {
         this.owned = null;
     }
 
+    currentRent() {
+        return null;
+    }
+
     tryImprove(player, game) {
         let [can, reason] = this.canImprove();
 
@@ -71,6 +75,17 @@ class ColorProperty extends AbstractSquare {
         this.devcost = devcost;
     }
 
+    currentRent() {
+        switch (this.improvementState) {
+            case 0: return this.rent0;
+            case 1: return this.rent1;
+            case 2: return this.rent2;
+            case 3: return this.rent3;
+            case 4: return this.rent4;
+            case 5: return this.rent5;
+        }
+    }
+
     canImprove() {
         let can = true;
         let reason = "";
@@ -110,6 +125,26 @@ class RailroadProperty extends AbstractSquare {
         super(name, null, cost, mortval, "&#x1F686;");
     }
 
+    currentRent() {
+        let railroadsOwned = 0;
+
+        for (let square of monopolyGame.squares) {
+            if (square.constructor === RailroadProperty) {
+                if (square.owned == this.owned) {
+                    railroadsOwned[square.owned]++;
+                }
+            }
+        }
+        
+        switch (railroadsOwned) {
+            case 0: return 0;
+            case 1: return 25;
+            case 2: return 50;
+            case 3: return 100;
+            case 4: return 200;
+        }
+    }
+
     canImprove() {
         return [false, 'railroad properties cannot be developed'];
     }
@@ -123,6 +158,14 @@ class UtilityProperty extends AbstractSquare {
     constructor(name, cost, mortval, icon) {
         // no meaningful color
         super(name, null, cost, mortval, icon);
+    }
+
+    currentRent(dice) {
+        if (monopolyGame.squares[12].owned == monopolyGame.squares[28].owned) { // both utilities owned by the same player
+            return 10 * dice;
+        } else {
+            return 4 * dice;
+        }
     }
 
     canImprove() {
@@ -196,6 +239,8 @@ class Game {
 
         this.squaresMarkup = Array.from(document.querySelectorAll('[square]'));
         this.squaresMarkup.sort((a, b) => a.getAttribute('square') - b.getAttribute('square'));
+
+        this.lastDice = 0;
 
         this.squares = [
             // bottom edge
@@ -328,6 +373,22 @@ class Game {
         `;
     }
 
+    rebuildPlayerAccounts() {
+        assetsPlayers.innerHTML = '';
+
+        for (let player of this.players) {
+            markupPlayerAccounts(player);
+        }
+    }
+
+    rebuildTurnBalances() {
+        turnContainer.innerHTML = '';
+
+        for (let player of this.players) {
+            markupTurnBalances(player);
+        }
+    }
+
     unhighlightAll() {
         for (let square of monopolyGame.squaresMarkup) {
             square.removeAttribute('highlighted');
@@ -335,31 +396,61 @@ class Game {
         }
     }
 
-    takePlayerAction() {
+    takePlayerAction(dice) {
         let player = this.players[this.currentTurn];
         let square = this.squares[player.currentSquare];
 
         switch (square.constructor) {
-            case ColorProperty:
-                break;
+            case ColorProperty: {
+                if (square.owned == null) {
+                    promptBuy(square);
+                } else if (square.owned != player.turn) {
+                    promptRent(square.currentRent())
+                } else {
+                    // current player owns the property so no need to pay rent
+                }
+            } break;
 
-            case TaxSquare: 
+            case UtilityProperty: {
+                if (square.owned == null) {
+                    promptBuy(square);
+                } else if (square.owned != player.turn) {
+                    promptRent(square.currentRent(dice))
+                } else {
+                    // current player owns the property so no need to pay rent
+                }
+            } break;
+
+            case RailroadProperty: {
+                if (square.owned == null) {
+                    promptBuy(square);
+                } else if (square.owned != player.turn) {
+                    promptRent(square.currentRent())
+                } else {
+                    // current player owns the property so no need to pay rent
+                }
+            } break;
+
+            case TaxSquare: {
                 if (player.currentSquare === 4) { // "income tax" 
                     let success = player.withdraw(200);
                     if (success) {
-                        logMessage(`${player.name} has paid 200&cent; in income tax.`);
+                        this.rebuildPlayerAccounts();
+                        this.rebuildTurnBalances();
+                        logMessage(`${player.name} has paid 200¢ in income tax.`);
                     } else {
                         this.bankrupt(player);
                     }
-                } else if (player.currentSquare === 38) {
+                } else if (player.currentSquare === 38) { // "luxury tax"
                     let success = player.withdraw(100);
 
                     if (success) {
-                        logMessage(`${player.name} has paid 100&cent; in luxury tax.`);
+                        logMessage(`${player.name} has paid 100¢ in luxury tax.`);
                     } else {
                         this.bankrupt(player);
                     }
                 }
+            } break;
         }
 
     }
@@ -399,6 +490,7 @@ class Player {
         let die2 = getRandomInt(1, 6);
 
         let sum = die1 + die2;
+        monopolyGame.lastDice = sum;
 
         let doublesString = (die1 === die2) ? '(doubles) ' : '';
 
@@ -434,8 +526,7 @@ class Player {
             this.money -= amount;
             return true;
         } else {
-            let difference = Math.abs()
-
+            let difference = amount - this.money;
             return this.raiseCapital(difference);
         }
     }
@@ -446,7 +537,7 @@ class Player {
     }
 
     endTurn() {
-        monopolyGame.takePlayerAction();
+        monopolyGame.takePlayerAction(monopolyGame.lastDice);
 
         monopolyGame.unhighlightAll();
         monopolyGame.repositionPlayers();
@@ -515,15 +606,7 @@ class Player {
     }
 }
 
-function insertPlayerHTML(player) {
-    existingPlayers.insertAdjacentHTML("beforeend", `
-        <tr>
-            <td>${player.name}</td>
-            <td>${player.color}</td>
-            <td>${player.turn + 1}</td>
-        </tr>
-    `);
-
+function markupTurnBalances(player) {
     turnContainer.insertAdjacentHTML("beforeend", `
         <div class="turn">
             <div class="player-color">
@@ -534,7 +617,9 @@ function insertPlayerHTML(player) {
             <b>${player.money}&cent;</b>
         </div>
     `);
+}
 
+function markupPlayerAccounts(player) {
     assetsPlayers.insertAdjacentHTML("beforeend", `
         <tr>
             <td>${player.name}</td>
@@ -542,6 +627,19 @@ function insertPlayerHTML(player) {
             <td>${player.computeNetWorth()}</td>
         </tr>
     `);
+}
+
+function insertPlayerHTML(player) {
+    existingPlayers.insertAdjacentHTML("beforeend", `
+        <tr>
+            <td>${player.name}</td>
+            <td>${player.color}</td>
+            <td>${player.turn + 1}</td>
+        </tr>
+    `);
+
+    markupTurnBalances(player);
+    markupPlayerAccounts(player);
 }
 
 const MAX_PLAYERS = 6;

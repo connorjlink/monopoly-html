@@ -83,7 +83,7 @@ tr {
     border-top: 1px solid var(--background-l);
 }
 
-#newgame-dialog[open] {
+dialog[open] {
     display: flex;
     flex-direction: column;
     background-color: var(--background);
@@ -198,4 +198,17 @@ hr {
     border-radius: 50%;
     width: 5px;
     height: 5px;
+}
+
+.insufficient {
+    display: flex;
+    flex-direction: column;
+    font-size: 30pt;
+    color: red;
+    margin: 0 0 20px 0;
+}
+
+.insufficient::after {
+    font-size: initial;
+    content: 'Insufficient money to pay outstanding rent charge. Raise capital to settle the balance or declare bankruptcy.';
 }

@@ -39,6 +39,49 @@
             <button onclick="startGame()" id="start-button" disabled="true">Start Game</button>
         </dialog>
 
+        <dialog id="rent-dialog">
+            <h1>Rent Due</h1>
+
+            <hr>
+
+            <h2>Amount Owed</h2>
+            <p id="rent-owed" class="insufficient"></p>
+
+            <button onclick="payRent()" id="payrent-button">Pay Rent</button>
+            <button onclick="raiseCapital()" id="raisecapital-button">Raise Capital</button>
+            <button onclick="declareBankruptcy()" id="declarebankruptcy-button">Declare Bankruptcy</button>
+        </dialog>
+
+        <dialog id="bankruptcy-dialog">
+            <h1>Declare Bankruptcy</h1>
+
+            <hr>
+
+            <h2>Are you sure you want to declare bankruptcy?</h2>
+            <p>All assets&mdash;including properties, improvements, available cash, and cards&mdash;will be ceded to <b id="bankruptcy-target"></b></p>
+
+            <button onclick="confirmBankruptcy()">Yes</button>
+            <button onclick="rejectBankruptcy()">No</button>
+        </dialog>
+
+        <dialog id="buy-dialog">
+            <h1>Purchase Property</h1>
+
+            <hr>
+
+            <h2 id="buy-target"> is for sale</h2>
+            <p>Do you want to buy it now or put it up for auction?</p>
+
+            <button onclick="buyNow()" id="buynow-button">Buy Now</button>
+            <button onclick="auctionOff()" id="auction-button">Auction Off</button>
+        </dialog>
+
+        <dialog id="auction-dialog">
+            <h1>Auction Property</h1>
+
+            <hr>
+        </dialog>
+
         <div id="game">
             <header>
                 <h1 class="game-title">HTML Monopoly</h1>

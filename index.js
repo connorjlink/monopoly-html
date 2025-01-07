@@ -54,14 +54,93 @@ function showSettings() {
     elements[3].classList.toggle("hidden", false);
 }
 
-const dialog = document.getElementById("newgame-dialog");
-dialog.showModal();
+function currentPlayer() {
+    return monopolyGame.players[monopolyGame.currentTurn];
+}
+
+const newgameDialog = document.getElementById("newgame-dialog");
+newgameDialog.showModal();
+
+
+const rentDialog = document.getElementById("rent-dialog");
+const rentOwed = document.getElementById("rent-owed");
+const payrentButton = document.getElementById("payrent-button");
+const raisecapitalButton = document.getElementById("raisecapital-button");
+const declarebankruptcyButton = document.getElementById("declarebankruptcy-button");
+
+function promptRent(amount) {
+    rentOwed.textContent = amount + "&cent;";
+
+    let insufficient = amount > currentPlayer().money;
+    rentDialog.classList.toggle('insufficient', insufficient);
+
+    payrentButton.toggleAttribute('disabled', insufficient);
+    raisecapitalButton.toggleAttribute('disabled', !insufficient);
+    declarebankruptcyButton.toggleAttribute('disabled', !insufficient);
+
+    rentDialog.showModal();
+}
+
+
+const bankruptcyDialog = document.getElementById("bankruptcy-dialog");
+const bankruptcyTarget = document.getElementById("bankruptcy-target");
+
+
+function payRent() {
+    // TODO:
+}
+
+function raiseCapital() {
+    // TODO:
+}
+
+function declareBankruptcy(player) {
+    let currentPlayer = monopolyGame.players[monopolyGame.currentTurn];
+
+    promptBankruptcy(player);
+}
+
+
+function promptBankruptcy(player) {
+    bankruptcyDialog.textContent = player.name;
+    bankruptcyDialog.showModal();
+}
+
+function confirmBankruptcy() {
+    // TODO:
+}
+
+function rejectBankruptcy() {
+    bankruptcyDialog.close();
+}
+
+
+const buyDialog = document.getElementById("buy-dialog");
+const buyTarget = document.getElementById("buy-target");
+const buynowButton = document.getElementById("buynow-button");
+const auctionButton = document.getElementById("auction-button")
+
+
+
+function promptBuy(property) {
+    buyTarget.textContent = property.name;
+    buyDialog.showModal();
+}
+
+function buyNow() {
+
+}
+
+function auctionOff() {
+    
+}
+
 
 const game = document.getElementById("game");
 game.classList.toggle("hidden", true);
 
 function startGame() {
-    dialog.close();
+    newgameDialog.close();
     initializationSequence();
     game.classList.toggle("hidden", false);
 }
