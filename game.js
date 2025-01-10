@@ -340,9 +340,11 @@ class Game {
         }
 
         for (let player of monopolyGame.players) {
-            let current = this.squaresMarkup[player.currentSquare].getAttribute('players');
-            current = (current == null ? '' : current);
-            this.squaresMarkup[player.currentSquare].setAttribute('players', current + `,${player.turn + 1}`);
+            if (!player.isBankrupt) {
+                let current = this.squaresMarkup[player.currentSquare].getAttribute('players');
+                current = (current == null ? '' : current);
+                this.squaresMarkup[player.currentSquare].setAttribute('players', current + `,${player.turn + 1}`);
+            }
         }
     }
 
@@ -456,9 +458,20 @@ class Game {
 
     }
 
-    bankrupt(player) {
+    nextTurn() {
+        do {
+            this.currentTurn = (this.currentTurn + 1) % this.players.length;
+        } while (this.players[this.currentTurn].isBankrupt);
+    }
+
+    bankrupt(player, toWhom) {
         // TODO: remove player from active pools everywhere and cede improvements to the bank and acution the rest of the properties
-        logMessage(`${player.name} has gone bankrupt.`);
+        player.isBankrupt = true;
+        turnContainer.children[player.turn].classList.toggle('withdrawn', true);
+
+        this.nextTurn();
+        this.resetCurrentTurn();
+        logMessage(`${player.name} has gone bankrupt to ${toWhom}; it's now ${this.players[this.currentTurn].name}'s turn to roll.`);
     }
 }
 
@@ -481,6 +494,7 @@ class Player {
         this.bailCards = 0;
         this.inJail = false;
         this.currentSquare = 0; // start on GO
+        this.isBankrupt = false;
     }
 
     roll() {
@@ -546,9 +560,11 @@ class Player {
         return true;
     }
 
-    buy(square) {
-        if (this.money >= square.cost) {
-            this.withdraw(square.cost);
+    buy(square, costOverride) {
+        let cost = costOverride == null ? square.cost : costOverride;
+
+        if (this.money >= cost) {
+            this.withdraw(cost);
             square.owned = this.turn;
             monopolyGame.squaresMarkup[square.square].setAttribute('owned', this.turn);
 
@@ -571,21 +587,14 @@ class Player {
         return false;
     }
 
-    declareBankruptcy(toWhom) {
-        // TODO:
-        logMessage(`${this.name} has declared bankruptcy to ${toWhom}.`);
-    }
-
     endTurn() {
         monopolyGame.unhighlightAll();
         monopolyGame.repositionPlayers();
-        monopolyGame.currentTurn = (monopolyGame.currentTurn + 1) % monopolyGame.players.length;
+        monopolyGame.nextTurn();
         monopolyGame.resetCurrentTurn();
 
         enableRoll();
         disableEndTurn();
-
-        logMessage(`${this.name}'s turn has ended; it's now ${monopolyGame.players[monopolyGame.currentTurn].name}'s turn to roll.`);
     }
 
     computeAssets() {

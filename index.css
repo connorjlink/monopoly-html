@@ -149,7 +149,7 @@ hr {
     outline: 1px solid red;
 }
 
-#game {
+header, #game {
     justify-content: center;
     width: 100%;
 }
@@ -180,7 +180,7 @@ textarea {
     justify-content: center;
 }
 
-.tab {
+#game > * {
     position: absolute;
     width: 100%;
     justify-content: center;
@@ -226,4 +226,8 @@ textarea {
 .insufficient::after {
     font-size: initial;
     content: 'Insufficient money to pay outstanding rent charge. Raise capital to settle the balance or declare bankruptcy.';
+}
+
+.withdrawn {
+    filter: contrast(0);
 }

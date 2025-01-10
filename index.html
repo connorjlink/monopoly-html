@@ -69,8 +69,8 @@
 
             <hr>
 
-            <h2><span class="buy-target"></span> is for sale</h2>
-            <p>Do you want to buy it now or put it up for auction?</p>
+            <h2 class="buy-target"></h2>
+            <p>The property is for sale; do you want to buy it now or put it up for auction?</p>
 
             <button onclick="buyNow()" id="buynow-button">Buy Now</button>
             <button onclick="auctionOff()" id="auction-button">Auction Off</button>
@@ -81,7 +81,7 @@
 
             <hr>
 
-            <h2><span class="buy-target"></span> is for auction</h2>
+            <h2 class="buy-target"></h2>
 
             <div id="auctionturn-container"></div>
 
@@ -89,7 +89,7 @@
             <textarea id="auction-log" readonly="true"></textarea>
             
             <h3>Current High Bid</h3>
-            <p id="high-bid">0&cent;</p>
+            <p class="high-bid">0&cent;</p>
 
             <h3>Auction Actions</h3>
             <button onclick="bid1()" id="bid1-button">Bid +1&cent;</button>
@@ -103,8 +103,8 @@
             
             <hr>
 
-            <h2><span class="buy-target"></span> is for sale</h2>
-            <p>Are you sure you want to buy it now?</p>
+            <h2 class="buy-target"></h2>
+            <p>The property is for sale; are you sure you want to buy it now?</p>
 
             <button onclick="confirmBuy()">Yes</button>
             <button onclick="rejectBuy()">No</button>
@@ -127,22 +127,46 @@
             <button onclick="confirmAccept()">Accept</button>
         </dialog>
 
-        <div id="game">
-            <header>
-                <h1 class="game-title">HTML Monopoly</h1>
+        <dialog id="auctioncongrats-dialog">
+            <h1>Property Auction</h1>
 
-                <nav>
-                    <ul class="hstack">
-                        <li class="item" onclick="showBoard()">Board</li>
-                        <li class="item" onclick="showAssets()">Assets</li>
-                        <li class="item" onclick="showBank()">Bank</li>
-                        <li class="item" onclick="showSettings()">Settings</li>
-                    </ul>
-                </nav>
-            </header>
-    
+            <hr>
+
+            <h2 class="buy-target"></h2>
+            <p>Congratulations, <span id="auction-winner"></span>, you have won <span class="buy-target"></span> for <span class="high-bid"></span>!</p>
+
+            <button onclick="acceptCongrats()">Accept</button>
+        </dialog>
+
+        <dialog id="wincongrats-dialog">
+            <h1>Game Over</h1>
+
+            <hr>
+
+            <h2>You Win</h2>
+            <p>Congratulations, <span id="game-winner"></span>, you have won the game!</p>
+
+            <!-- TODO: end-of-game statistics -->
+
+            <button onclick="location.reload()">Accept</button>
+        </dialog>
+
+        <header>
+            <h1 class="game-title">HTML Monopoly</h1>
+
+            <nav>
+                <ul id="navbar" class="hstack">
+                    <li>Board</li>
+                    <li>Assets</li>
+                    <li>Bank</li>
+                    <li>Settings</li>
+                </ul>
+            </nav>
+        </header>
+
+        <div id="game">
             <!-- Board tab -->
-            <div class="tab hidden">
+            <div class="hidden">
                 <div class="board-container">
                     <div class="overlay">
                         <h1>Game In Progress</h1>
@@ -161,6 +185,7 @@
                             <button id="roll-button" onclick="monopolyGame.players[monopolyGame.currentTurn].roll()">Roll</button>
                             <button id="trade-button" onclick="monopolyGame.players[monopolyGame.currentTurn].trade()">Trade</button>
                             <button id="endturn-button" onclick="monopolyGame.players[monopolyGame.currentTurn].endTurn()">End Turn</button>
+                            <button onclick="promptBankruptcy()">Declare Bankruptcy</button>
                         </div>
                     </div>
             
@@ -237,7 +262,7 @@
                 </div>
             </div>
     
-            <div class="tab vstack hidden">
+            <div class="vstack hidden">
                 <h2>Assets</h2>
 
                 <h3>Player Accounts</h3>
@@ -267,7 +292,7 @@
                 </div>
             </div>
     
-            <div class="tab vstack hidden">
+            <div class="vstack hidden">
                 <h2>Bank</h2>
 
                 <h3>Improvements</h3>
@@ -300,9 +325,9 @@
                 </div>
             </div>
     
-            <div class="tab hidden">
+            <div class="hidden">
                 <h2>Settings</h2>
-                
+                <p>Work in Progress&hellip;</p>
             </div>
         </div>
     </body>

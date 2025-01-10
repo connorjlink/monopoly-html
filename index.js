@@ -1,58 +1,21 @@
-function showBoard() {
-    var items = document.getElementsByClassName("item");
-    items[0].classList.toggle("active-tab", true);
-    items[1].classList.toggle("active-tab", false);
-    items[2].classList.toggle("active-tab", false);
-    items[3].classList.toggle("active-tab", false);
+const navLinks = document.getElementById("navbar");
+const tabContents = document.getElementById("game");
 
-    var elements = document.getElementsByClassName("tab");
-    elements[0].classList.toggle("hidden", false);
-    elements[1].classList.toggle("hidden", true);
-    elements[2].classList.toggle("hidden", true);
-    elements[3].classList.toggle("hidden", true);
+function showTab(index) {
+    var links = navLinks.children;
+    var tabs = tabContents.children;
+
+    for (let i = 0; i < links.length; i++) {
+        links[i].classList.toggle("active-tab", i === index);
+        tabs[i].classList.toggle("hidden", i !== index);
+    }
 }
 
-function showAssets() {
-    var items = document.getElementsByClassName("item");
-    items[0].classList.toggle("active-tab", false);
-    items[1].classList.toggle("active-tab", true);
-    items[2].classList.toggle("active-tab", false);
-    items[3].classList.toggle("active-tab", false);
-
-    var elements = document.getElementsByClassName("tab");
-    elements[0].classList.toggle("hidden", true);
-    elements[1].classList.toggle("hidden", false);
-    elements[2].classList.toggle("hidden", true);
-    elements[3].classList.toggle("hidden", true);
-}
-
-function showBank() {
-    var items = document.getElementsByClassName("item");
-    items[0].classList.toggle("active-tab", false);
-    items[1].classList.toggle("active-tab", false);
-    items[2].classList.toggle("active-tab", true);
-    items[3].classList.toggle("active-tab", false);
-
-    var elements = document.getElementsByClassName("tab");
-    elements[0].classList.toggle("hidden", true);
-    elements[1].classList.toggle("hidden", true);
-    elements[2].classList.toggle("hidden", false);
-    elements[3].classList.toggle("hidden", true);
-}
-
-function showSettings() {
-    var items = document.getElementsByClassName("item");
-    items[0].classList.toggle("active-tab", false);
-    items[1].classList.toggle("active-tab", false);
-    items[2].classList.toggle("active-tab", false);
-    items[3].classList.toggle("active-tab", true);
-
-    var elements = document.getElementsByClassName("tab");
-    elements[0].classList.toggle("hidden", true);
-    elements[1].classList.toggle("hidden", true);
-    elements[2].classList.toggle("hidden", true);
-    elements[3].classList.toggle("hidden", false);
-}
+for (let i = 0; i < navbar.childElementCount; i++) {
+    navLinks.children[i].addEventListener('click', () => {
+        showTab(i);
+    });
+}   
 
 function currentPlayer() {
     return monopolyGame.players[monopolyGame.currentTurn];
@@ -89,6 +52,7 @@ function payRent() {
     let success = player.payRent(square, owner);
 
     if (success) {
+        logMessage(`${player.name} has paid ${square.currentRent()}¢ to ${monopolyGame.players[owner].name}.`);
         rentDialog.close();
     } else {
         promptInsufficientFunds();
@@ -102,12 +66,32 @@ const bankruptcyTarget = document.getElementById("bankruptcy-target");
 var bankruptcyTargetPlayer = null;
 
 function promptBankruptcy(toWhom) {
-    bankruptcyTarget.textContent = toWhom.name;
+    if (toWhom != null) {
+        bankruptcyTarget.textContent = toWhom.name;
+    } else {
+        bankruptcyTarget.textContent = "the Bank";
+    }
+
     bankruptcyDialog.showModal();
 }
 
 function confirmBankruptcy() {
-    // TODO:
+    monopolyGame.bankrupt(currentPlayer(), bankruptcyTarget.textContent);
+
+    let bankruptPlayersCount = countWithdrawnPlayers(turnContainer.children);
+
+    if (bankruptPlayersCount === monopolyGame.players.length - 1) {
+        // there remains only 1 player
+        for (let i = 0; i < turnContainer.childElementCount; i++) {
+            let child = turnContainer.children[i];
+
+            if (!child.classList.contains('withdrawn')) {
+                promptWin(monopolyGame.players[i].name);
+            }
+        }
+    }
+
+    bankruptcyDialog.close();
 }
 
 function rejectBankruptcy() {
@@ -124,8 +108,11 @@ var buyTargetSquare = null;
 
 function promptBuy(square) {
     buyTargetSquare = square;
-    buyTarget[0].textContent = square.name;
-    buyTarget[1].textContent = square.name;
+
+    for (let target of buyTarget) {
+        target.textContent = square.name;
+    }
+
     buyDialog.showModal();
 }
 
@@ -165,7 +152,8 @@ function rejectBuy() {
 const auctionDialog = document.getElementById("auction-dialog");
 const auctionturnContainer = document.getElementById("auctionturn-container");
 const auctionTurns = document.getElementsByClassName("auction-turn");
-const highBid = document.getElementById("high-bid");
+const auctionLog = document.getElementById("auction-log");
+const highBid = document.getElementsByClassName("high-bid");
 const bid1Button = document.getElementById("bid1-button");
 const bid10Button = document.getElementById("bid10-button");
 const bid100Button = document.getElementById("bid100-button");
@@ -173,7 +161,13 @@ const bid100Button = document.getElementById("bid100-button");
 var currentAuctionTurn = null;
 var currentHighBid = null;
 
+function logMessageAuction(message) {
+    auctionLog.textContent = auctionLog.textContent + message + '\n';
+    logMessage(message);
+}
+
 function auctionOff() {
+    auctionLog.textContent = '';
     promptAuction();
 }
 
@@ -181,7 +175,10 @@ function promptAuction() {
     currentHighBid = 0;
     currentAuctionTurn = monopolyGame.currentTurn;
 
+    buyTargetSquare = monopolyGame.players[monopolyGame.currentTurn].currentSquare;
+
     setAuctionTurn();
+    logMessageAuction(`${monopolyGame.squares[buyTargetSquare].name} is up for auction; bidding will open at 0¢ with ${monopolyGame.players[monopolyGame.currentTurn].name}.`);
     auctionDialog.showModal();
 }
 
@@ -194,9 +191,9 @@ function setAuctionTurn() {
 
     let currentPlayer = monopolyGame.players[currentAuctionTurn];
     
-    bid1Button.setAttribute('disabled', currentPlayer.money < currentHighBid + 1);
-    bid10Button.setAttribute('disabled', currentPlayer.money < currentHighBid + 10);
-    bid100Button.setAttribute('disabled', currentPlayer.money < currentHighBid + 100);
+    bid1Button.toggleAttribute('disabled', currentPlayer.money < currentHighBid + 1);
+    bid10Button.toggleAttribute('disabled', currentPlayer.money < currentHighBid + 10);
+    bid100Button.toggleAttribute('disabled', currentPlayer.money < currentHighBid + 100);
 }
 
 function nextBidder() {
@@ -205,7 +202,11 @@ function nextBidder() {
 
 function logBid() {
     let player = monopolyGame.players[currentAuctionTurn];
-    logMessage(`${player.name} has bid ${currentHighBid}`);
+    logMessageAuction(`${player.name} has bid ${currentHighBid}¢.`);
+
+    for (let element of highBid) {
+        element.textContent = `${currentHighBid}¢`;
+    }
 
     while (auctionTurns[currentAuctionTurn].classList.contains('withdrawn')) {
         nextBidder();
@@ -229,8 +230,37 @@ function bid100() {
     logBid();
 }
 
-function withdraw() {
+function countWithdrawnPlayers(container) {
+    let withdrawnCount = 0;
 
+    for (let player of container) {
+        if (player.classList.contains('withdrawn')) {
+            withdrawnCount++;
+        }
+    }
+
+    return withdrawnCount;
+}
+
+function withdraw() {
+    auctionTurns[currentAuctionTurn].classList.toggle('withdrawn', true);
+    logMessageAuction(`${monopolyGame.players[currentAuctionTurn].name} has withdrawn from the auction.`);
+    nextBidder();
+    setAuctionTurn();
+
+    let withdrawnCount = countWithdrawnPlayers(auctionTurns);    
+
+    if (withdrawnCount === auctionTurns.length - 1) {
+        // there remains only 1 player
+        let player = monopolyGame.players[currentAuctionTurn];
+        let square = monopolyGame.squares[buyTargetSquare];
+        player.buy(square, currentHighBid);
+
+        promptCongrats(player.name, square.name, currentHighBid);
+        logMessageAuction(`${player.name} has won ${square.name} for ${currentHighBid}¢.`);
+        auctionDialog.close();
+        buyDialog.close();
+    }
 }
 
 
@@ -243,6 +273,34 @@ function promptInsufficientFunds() {
 
 function confirmAccept() {
     insufficientfundsDialog.close();
+}
+
+
+const auctioncongratsDialog = document.getElementById("auctioncongrats-dialog");
+const auctionWinner = document.getElementById("auction-winner");
+
+function promptCongrats(name, square, topBid) {
+    auctionWinner.textContent = name;
+    
+    for (let bid of highBid) {
+        bid.textContent = topBid;
+    }
+
+    auctioncongratsDialog.showModal();
+}
+
+function acceptCongrats() {
+    auctioncongratsDialog.close();
+}
+
+
+const wincongratsDialog = document.getElementById("wincongrats-dialog");
+const gameWinner = document.getElementById("game-winner");
+
+function promptWin(name) {
+    gameWinner.textContent = name;
+    logMessage(`${name} is the last player remaining and has won the game.`);
+    wincongratsDialog.showModal();
 }
 
 
@@ -264,7 +322,6 @@ function transitionRotate(card) {
     }, 250);
 }
 
-// For asset 3d hover effect
 const deeds = document.getElementsByClassName('deed');
 let bounds;
 
