@@ -69,10 +69,10 @@ const raisecapitalButton = document.getElementById("raisecapital-button");
 const declarebankruptcyButton = document.getElementById("declarebankruptcy-button");
 
 function promptRent(amount) {
-    rentOwed.textContent = amount + "&cent;";
+    rentOwed.textContent = amount + "¢";
 
-    let insufficient = amount > currentPlayer().money;
-    rentDialog.classList.toggle('insufficient', insufficient);
+    let insufficient = (amount > currentPlayer().money);
+    rentOwed.classList.toggle('insufficient', insufficient);
 
     payrentButton.toggleAttribute('disabled', insufficient);
     raisecapitalButton.toggleAttribute('disabled', !insufficient);
@@ -81,28 +81,28 @@ function promptRent(amount) {
     rentDialog.showModal();
 }
 
+function payRent() {
+    let player = currentPlayer();
+    let square = monopolyGame.squares[player.currentSquare];
+    let owner = square.owned;
+
+    let success = player.payRent(square, owner);
+
+    if (success) {
+        rentDialog.close();
+    } else {
+        promptInsufficientFunds();
+    }
+}
+
 
 const bankruptcyDialog = document.getElementById("bankruptcy-dialog");
 const bankruptcyTarget = document.getElementById("bankruptcy-target");
 
+var bankruptcyTargetPlayer = null;
 
-function payRent() {
-    // TODO:
-}
-
-function raiseCapital() {
-    // TODO:
-}
-
-function declareBankruptcy(player) {
-    let currentPlayer = monopolyGame.players[monopolyGame.currentTurn];
-
-    promptBankruptcy(player);
-}
-
-
-function promptBankruptcy(player) {
-    bankruptcyDialog.textContent = player.name;
+function promptBankruptcy(toWhom) {
+    bankruptcyTarget.textContent = toWhom.name;
     bankruptcyDialog.showModal();
 }
 
@@ -116,24 +116,135 @@ function rejectBankruptcy() {
 
 
 const buyDialog = document.getElementById("buy-dialog");
-const buyTarget = document.getElementById("buy-target");
+const buyTarget = document.getElementsByClassName("buy-target");
 const buynowButton = document.getElementById("buynow-button");
-const auctionButton = document.getElementById("auction-button")
+const auctionButton = document.getElementById("auction-button");
 
+var buyTargetSquare = null;
 
-
-function promptBuy(property) {
-    buyTarget.textContent = property.name;
+function promptBuy(square) {
+    buyTargetSquare = square;
+    buyTarget[0].textContent = square.name;
+    buyTarget[1].textContent = square.name;
     buyDialog.showModal();
 }
 
 function buyNow() {
-
+    promptConfirmBuy(buyTargetSquare);
 }
 
 function auctionOff() {
-    
+    promptAuction();
 }
+
+
+const buyconfirmDialog = document.getElementById("buyconfirm-dialog");
+
+function promptConfirmBuy(square) {
+    buyconfirmDialog.showModal();
+}
+
+function confirmBuy() {
+    let player = currentPlayer();
+    let success = player.buy(buyTargetSquare);
+
+    if (success) {
+        buyconfirmDialog.close();
+        buyDialog.close();
+        logMessage(`${player.name} has purchased ${buyTargetSquare.name}.`);
+    } else {
+        promptInsufficientFunds();
+    }
+
+}
+
+function rejectBuy() {
+    buyconfirmDialog.close();
+}
+
+const auctionDialog = document.getElementById("auction-dialog");
+const auctionturnContainer = document.getElementById("auctionturn-container");
+const auctionTurns = document.getElementsByClassName("auction-turn");
+const highBid = document.getElementById("high-bid");
+const bid1Button = document.getElementById("bid1-button");
+const bid10Button = document.getElementById("bid10-button");
+const bid100Button = document.getElementById("bid100-button");
+
+var currentAuctionTurn = null;
+var currentHighBid = null;
+
+function auctionOff() {
+    promptAuction();
+}
+
+function promptAuction() {
+    currentHighBid = 0;
+    currentAuctionTurn = monopolyGame.currentTurn;
+
+    setAuctionTurn();
+    auctionDialog.showModal();
+}
+
+function setAuctionTurn() {
+    for (let turn of auctionTurns) {
+        turn.classList.toggle("active", false);
+    }
+
+    auctionTurns[currentAuctionTurn].classList.toggle("active", true);
+
+    let currentPlayer = monopolyGame.players[currentAuctionTurn];
+    
+    bid1Button.setAttribute('disabled', currentPlayer.money < currentHighBid + 1);
+    bid10Button.setAttribute('disabled', currentPlayer.money < currentHighBid + 10);
+    bid100Button.setAttribute('disabled', currentPlayer.money < currentHighBid + 100);
+}
+
+function nextBidder() {
+    currentAuctionTurn = (currentAuctionTurn + 1) % auctionTurns.length;
+}
+
+function logBid() {
+    let player = monopolyGame.players[currentAuctionTurn];
+    logMessage(`${player.name} has bid ${currentHighBid}`);
+
+    while (auctionTurns[currentAuctionTurn].classList.contains('withdrawn')) {
+        nextBidder();
+    }
+
+    setAuctionTurn();
+}
+
+function bid1() {
+    currentHighBid = currentHighBid + 1;
+    logBid();
+}
+
+function bid10() {
+    currentHighBid = currentHighBid + 10;
+    logBid();
+}
+
+function bid100() {
+    currentHighBid = currentHighBid + 100;
+    logBid();
+}
+
+function withdraw() {
+
+}
+
+
+const insufficientfundsDialog = document.getElementById("insufficientfunds-dialog");
+
+function promptInsufficientFunds() {
+    // TODO: show the funds shortage value
+    insufficientfundsDialog.showModal();
+}
+
+function confirmAccept() {
+    insufficientfundsDialog.close();
+}
+
 
 
 const game = document.getElementById("game");

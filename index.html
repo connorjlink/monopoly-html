@@ -45,11 +45,11 @@
             <hr>
 
             <h2>Amount Owed</h2>
-            <p id="rent-owed" class="insufficient"></p>
+            <p id="rent-owed"></p>
 
             <button onclick="payRent()" id="payrent-button">Pay Rent</button>
-            <button onclick="raiseCapital()" id="raisecapital-button">Raise Capital</button>
-            <button onclick="declareBankruptcy()" id="declarebankruptcy-button">Declare Bankruptcy</button>
+            <button onclick="currentPlayer().raiseCapital()" id="raisecapital-button">Raise Capital</button>
+            <button onclick="promptBankruptcy()" id="declarebankruptcy-button">Declare Bankruptcy</button>
         </dialog>
 
         <dialog id="bankruptcy-dialog">
@@ -65,11 +65,11 @@
         </dialog>
 
         <dialog id="buy-dialog">
-            <h1>Purchase Property</h1>
+            <h1>Property Available</h1>
 
             <hr>
 
-            <h2 id="buy-target"> is for sale</h2>
+            <h2><span class="buy-target"></span> is for sale</h2>
             <p>Do you want to buy it now or put it up for auction?</p>
 
             <button onclick="buyNow()" id="buynow-button">Buy Now</button>
@@ -77,9 +77,54 @@
         </dialog>
 
         <dialog id="auction-dialog">
+            <h1>Property Auction</h1>
+
+            <hr>
+
+            <h2><span class="buy-target"></span> is for auction</h2>
+
+            <div id="auctionturn-container"></div>
+
+            <h3>Auction Log</h3>
+            <textarea id="auction-log" readonly="true"></textarea>
+            
+            <h3>Current High Bid</h3>
+            <p id="high-bid">0&cent;</p>
+
+            <h3>Auction Actions</h3>
+            <button onclick="bid1()" id="bid1-button">Bid +1&cent;</button>
+            <button onclick="bid10()" id="bid10-button">Bid +10&cent;</button>
+            <button onclick="bid100()" id="bid100-button">Bid +100&cent;</button>
+            <button onclick="withdraw()" id="withdraw-button">Withdraw</button>
+        </dialog>
+
+        <dialog id="buyconfirm-dialog">
+            <h1>Buy Property</h1>
+            
+            <hr>
+
+            <h2><span class="buy-target"></span> is for sale</h2>
+            <p>Are you sure you want to buy it now?</p>
+
+            <button onclick="confirmBuy()">Yes</button>
+            <button onclick="rejectBuy()">No</button>
+        </dialog>
+
+        <dialog id="auction-dialog">
             <h1>Auction Property</h1>
 
             <hr>
+        </dialog>
+
+        <dialog id="insufficientfunds-dialog">
+            <h1>Notice</h1>
+
+            <hr>
+
+            <h2>Insufficient Funds</h2>
+            <p>You don't have enough money to complete the requested transaction.</p>
+
+            <button onclick="confirmAccept()">Accept</button>
         </dialog>
 
         <div id="game">

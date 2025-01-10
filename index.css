@@ -126,6 +126,7 @@ hr {
     width: 100%;
 }
 
+
 #turn-container {
     display: flex;
     gap: 10px;
@@ -153,8 +154,11 @@ hr {
     width: 100%;
 }
 
-#output-log {
+textarea {
     resize: none;
+}
+
+#output-log {
     width: calc(100% - 10px);
     height: 200px;
     margin: 5px;
@@ -168,6 +172,12 @@ hr {
 .game-title {
     color: red;
     text-shadow: 2px 2px 0px var(--foreground);
+}
+
+#auctionturn-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
 }
 
 .tab {
@@ -191,7 +201,12 @@ hr {
 
 .player-color {
     display: flex;
+    justify-content: center;
     align-items: center;
+
+    > p {
+        margin: 5px;
+    }
 }
 
 .circle {
