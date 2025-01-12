@@ -146,13 +146,105 @@
             <h2>You Win</h2>
             <p>Congratulations, <span id="game-winner"></span>, you have won the game!</p>
 
-            <!-- TODO: end-of-game statistics -->
+            <!-- TODO: -->
+            <h2>Final Statistics</h2>
+            <table></table>
 
             <button onclick="location.reload()">Accept</button>
         </dialog>
 
+        <dialog id="traderequestor-dialog">
+            <h1>Trade Requestor</h1>
+
+            <hr>
+
+            <h2>Outgoing Request</h2>
+            <p>With whom would you like to trade?</p>
+
+            <select id="trade-players"></select>
+
+            <button onclick="submitTradeRequest()">Submit</button>
+        </dialog>
+
+        <dialog id="traderequest-dialog">
+            <h1>Trade Requestee</h1>
+
+            <hr>
+
+            <h2>Incoming Request</h2>
+            <p><span class="trade-requestee"></span>, would you like to trade with <span class="trade-requestor"></span>?</p>
+
+            <button onclick="acceptTradeRequest()">Accept</button>
+            <button onclick="tradeRequestDialog.close()">Reject</button>
+        </dialog>
+
+        <dialog id="trade-dialog">
+            <h1>Trade</h1>
+
+            <hr>
+
+            <h2>My Offer</h2>
+            <i>You are trading with <span class="trade-requestee"></span></i>
+
+            <h3>You Give</h3>
+            <div class="tradegive-offer">
+                <ul class="left">
+                    <li>Cash</li>
+                    <li>Properties</li>
+                    <li>Cards</li>
+                </ul>
+
+                <ul class="right">
+                    <input id="trade-cash">
+                    <select id="trade-properties" multiple></select>
+                    <select id="trade-cards" multiple></select>
+                </ul>
+            </div>
+
+            <h3>You Want</h3>
+            <div class="tradewant-offer"></div>
+
+            <button onclick="makeTradeOffer()">Make Offer</button>
+            <button onclick="tradeDialog.close()">Cancel</button>
+        </dialog>
+
+        <dialog id="tradeoffer-dialog">
+            <h1>Trade Offer</h1>
+
+            <hr>
+
+            <h2><span class="trade-requestor"></span>'s Offer</h2>
+            <div class="trade-offer"></div>
+
+            <button onclick="acceptTradeOffer()">Accept</button>
+            <button onclick="rejectTradeOffer()">Reject</button>
+        </dialog>
+
+        <dialog id="draw-dialog">
+            <h1 id="draw-type"></h1>
+
+            <hr>
+
+            <h2 id="draw-title"></h2>
+            <p id="draw-text"></p>
+
+            <button onclick="acceptDraw()">Accept</button>
+        </dialog>
+
+        <dialog id="jail-dialog">
+            <h1>In Jail</h1>
+
+            <hr>
+
+            <h2>Available Actions</h2>
+
+            <button id="jail-usecard">Use Get Out of Jail Free Card (<span id="jail-cardsremaining"></span> remaining)</button>
+            <button id="jail-paybail">Pay Bail (50¢)</button>
+            <button>Roll Dice (<span id="jail-attemptsremaining"></span>)</button>
+        </dialog>
+
         <header>
-            <h1 class="game-title">HTML Monopoly</h1>
+            <h1>HTML Monopoly</h1>
 
             <nav>
                 <ul id="navbar" class="hstack">
@@ -166,97 +258,95 @@
 
         <div id="game">
             <!-- Board tab -->
-            <div class="hidden">
-                <div class="board-container">
-                    <div class="overlay">
-                        <h1>Game In Progress</h1>
+            <div class="board-container hidden">
+                <div class="overlay">
+                    <h1>Game In Progress</h1>
 
-                        <hr>
+                    <hr>
 
-                        <h2>Players</h2>
-                        <div id="turn-container">
-                        </div>
-                        
-                        <h2>Log</h2>
-                        <textarea id="output-log" readonly="true"></textarea>
-
-                        <h2>Actions</h2>
-                        <div class="player-actions hstack">
-                            <button id="roll-button" onclick="monopolyGame.players[monopolyGame.currentTurn].roll()">Roll</button>
-                            <button id="trade-button" onclick="monopolyGame.players[monopolyGame.currentTurn].trade()">Trade</button>
-                            <button id="endturn-button" onclick="monopolyGame.players[monopolyGame.currentTurn].endTurn()">End Turn</button>
-                            <button onclick="promptBankruptcy()">Declare Bankruptcy</button>
-                        </div>
+                    <h2>Players</h2>
+                    <div id="turn-container">
                     </div>
+                    
+                    <h2>Log</h2>
+                    <textarea id="output-log" readonly="true"></textarea>
+
+                    <h2>Actions</h2>
+                    <div class="player-actions hstack">
+                        <button id="roll-button" onclick="currentPlayer().roll()">Roll</button>
+                        <button id="trade-button" onclick="currentPlayer().trade()">Trade</button>
+                        <button id="endturn-button" onclick="currentPlayer().endTurn()">End Turn</button>
+                        <button onclick="promptBankruptcy()">Declare Bankruptcy</button>
+                    </div>
+                </div>
+        
+                <div class="board">
+                    <div class="vstack">
+                        <!-- board top -->
+                        <div class="hstack side" id="s3">
+                            <!-- TODO: go to jail corner -->
+                            <board-corner square="30"></board-corner>
+                            <board-property square="29"></board-property> <!-- Marvin Gardens -->
+                            <board-utility square="28"></board-utility>   <!-- Water Works -->
+                            <board-property square="27"></board-property> <!-- Ventnor Avenue -->
+                            <board-property square="26"></board-property> <!-- Atlantic Avenue -->
+                            <board-railroad square="25"></board-railroad> <!-- B. & O. Railroad -->
+                            <board-property square="24"></board-property> <!-- Illinois Avenue -->
+                            <board-property square="23"></board-property> <!-- Indiana Avenue -->
+                            <board-draw square="22"></board-draw>         <!-- Chance -->
+                            <board-property square="21"></board-property> <!-- Kentucky Avenue -->
+                            <!-- TODO: free parking corner -->
+                            <board-corner square="20"></board-corner> 
+                        </div>
             
-                    <div class="board">
-                        <div class="vstack">
-                            <!-- board top -->
-                            <div class="hstack side" id="s3">
-                                <!-- TODO: go to jail corner -->
-                                <board-corner square="30"></board-corner>
-                                <board-property square="29"></board-property> <!-- Marvin Gardens -->
-                                <board-utility square="28"></board-utility>   <!-- Water Works -->
-                                <board-property square="27"></board-property> <!-- Ventnor Avenue -->
-                                <board-property square="26"></board-property> <!-- Atlantic Avenue -->
-                                <board-railroad square="25"></board-railroad> <!-- B. & O. Railroad -->
-                                <board-property square="24"></board-property> <!-- Illinois Avenue -->
-                                <board-property square="23"></board-property> <!-- Indiana Avenue -->
-                                <board-draw square="22"></board-draw>         <!-- Chance -->
-                                <board-property square="21"></board-property> <!-- Kentucky Avenue -->
-                                <!-- TODO: free parking corner -->
-                                <board-corner square="20"></board-corner> 
-                            </div>
-                
-                            <!-- board left and right -->
-                            <div class="hstack">
-                                <!-- board left -->
-                                <div class="rotation-wrapper-outer">
-                                    <div class="rotation-wrapper-inner">
-                                        <div class="hstack side" id="s2">
-                                            <board-property square="19"></board-property> <!-- New York Avenue -->
-                                            <board-property square="18"></board-property> <!-- Tennessee Avenue -->
-                                            <board-draw square="17"></board-draw>         <!-- Community Chest -->
-                                            <board-property square="16"></board-property> <!-- St. James Place -->
-                                            <board-railroad square="15"></board-railroad> <!-- Pennsylvania Railroad -->
-                                            <board-property square="14"></board-property> <!-- Virginia Avenue -->
-                                            <board-property square="13"></board-property> <!-- States Avenue -->
-                                            <board-utility square="12"></board-utility>   <!-- Electric Company -->
-                                            <board-property square="11"></board-property> <!-- St. Charles Place -->
-                                        </div>
+                        <!-- board left and right -->
+                        <div class="hstack">
+                            <!-- board left -->
+                            <div class="rotation-wrapper-outer">
+                                <div class="rotation-wrapper-inner">
+                                    <div class="hstack side" id="s2">
+                                        <board-property square="19"></board-property> <!-- New York Avenue -->
+                                        <board-property square="18"></board-property> <!-- Tennessee Avenue -->
+                                        <board-draw square="17"></board-draw>         <!-- Community Chest -->
+                                        <board-property square="16"></board-property> <!-- St. James Place -->
+                                        <board-railroad square="15"></board-railroad> <!-- Pennsylvania Railroad -->
+                                        <board-property square="14"></board-property> <!-- Virginia Avenue -->
+                                        <board-property square="13"></board-property> <!-- States Avenue -->
+                                        <board-utility square="12"></board-utility>   <!-- Electric Company -->
+                                        <board-property square="11"></board-property> <!-- St. Charles Place -->
                                     </div>
                                 </div>
-                        
-                                <!-- board right -->
-                                <div class="hstack side" id="s4">
-                                    <board-property square="39"></board-property> <!-- Boardwalk -->
-                                    <board-tax square="38"></board-tax>           <!-- Luxury Tax -->
-                                    <board-property square="37"></board-property> <!-- Park Place -->
-                                    <board-draw square="36"></board-draw>         <!-- Chance -->
-                                    <board-railroad square="35"></board-railroad> <!-- Short Line-->
-                                    <board-property square="34"></board-property> <!-- Pennsylvania Avenue -->
-                                    <board-draw square="33"></board-draw>         <!-- Community Chest -->
-                                    <board-property square="32"></board-property> <!-- North Carolina Avenue -->
-                                    <board-property square="31"></board-property> <!-- Pacific Avenue -->
-                                </div>  
                             </div>
-                
-                            <!-- board bottom -->
-                            <div class="hstack side" id="s1">
-                                <!-- TODO: jail corner -->
-                                <board-corner square="10"></board-corner>
-                                <board-property square="9"></board-property> <!-- Connecticut Avenue-->
-                                <board-property square="8"></board-property> <!-- Vermont Avenue -->
-                                <board-draw square="7"></board-draw>         <!-- Chance -->
-                                <board-property square="6"></board-property> <!-- Oriental Avenue -->
-                                <board-railroad square="5"></board-railroad> <!-- Reading Railroad-->
-                                <board-tax square="4"></board-tax>           <!-- Income Tax-->
-                                <board-property square="3"></board-property> <!-- Baltic Avenue -->
-                                <board-draw square="2"></board-draw>         <!-- Commmunity Chest -->
-                                <board-property square="1"></board-property> <!-- Mediterranean Avenue -->
-                                <!-- TODO: go corner -->
-                                <board-corner square="0"></board-corner>
-                            </div>
+                    
+                            <!-- board right -->
+                            <div class="hstack side" id="s4">
+                                <board-property square="39"></board-property> <!-- Boardwalk -->
+                                <board-tax square="38"></board-tax>           <!-- Luxury Tax -->
+                                <board-property square="37"></board-property> <!-- Park Place -->
+                                <board-draw square="36"></board-draw>         <!-- Chance -->
+                                <board-railroad square="35"></board-railroad> <!-- Short Line-->
+                                <board-property square="34"></board-property> <!-- Pennsylvania Avenue -->
+                                <board-draw square="33"></board-draw>         <!-- Community Chest -->
+                                <board-property square="32"></board-property> <!-- North Carolina Avenue -->
+                                <board-property square="31"></board-property> <!-- Pacific Avenue -->
+                            </div>  
+                        </div>
+            
+                        <!-- board bottom -->
+                        <div class="hstack side" id="s1">
+                            <!-- TODO: jail corner -->
+                            <board-corner square="10"></board-corner>
+                            <board-property square="9"></board-property> <!-- Connecticut Avenue-->
+                            <board-property square="8"></board-property> <!-- Vermont Avenue -->
+                            <board-draw square="7"></board-draw>         <!-- Chance -->
+                            <board-property square="6"></board-property> <!-- Oriental Avenue -->
+                            <board-railroad square="5"></board-railroad> <!-- Reading Railroad-->
+                            <board-tax square="4"></board-tax>           <!-- Income Tax-->
+                            <board-property square="3"></board-property> <!-- Baltic Avenue -->
+                            <board-draw square="2"></board-draw>         <!-- Commmunity Chest -->
+                            <board-property square="1"></board-property> <!-- Mediterranean Avenue -->
+                            <!-- TODO: go corner -->
+                            <board-corner square="0"></board-corner>
                         </div>
                     </div>
                 </div>

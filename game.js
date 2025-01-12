@@ -193,6 +193,21 @@ class CornerSquare extends AbstractSquare {
     }
 }
 
+class JailSquare extends AbstractSquare {
+    constructor(square, name, icon) {
+        // no meaningful color, cost, or mortval
+        super(square, name, null, null, null, icon);
+    }
+
+    canImprove() {
+        return [false, 'corner squares cannot be developed'];
+    }
+
+    canDemolish() {
+        return [false, 'corner squares cannot be developed'];
+    }
+}
+
 class CommunityChestSquare extends AbstractSquare {
     constructor(square) {
         // no meaningful color, mortval
@@ -230,6 +245,29 @@ class TaxSquare extends AbstractSquare {
     }
 }
 
+
+class AbstractDraw {
+    constructor(type, title, text, functor) {
+        this.type = type;
+        this.title = title;
+        this.text = text;
+        this.functor = functor;
+    }
+}
+
+class CommunityChestDraw extends AbstractDraw {
+    constructor(title, text, functor) {
+        super("Community Chest", title, text, functor);
+    }
+}
+
+class ChanceDraw extends AbstractDraw {
+    constructor(title, text, functor) {
+        super("Chance", title, text, functor);
+    }
+}
+
+
 class Game {
     constructor() {
         this.availableHouses = TOTAL_HOUSES;
@@ -242,6 +280,214 @@ class Game {
         this.squaresMarkup.sort((a, b) => a.getAttribute('square') - b.getAttribute('square'));
 
         this.lastDice = 0;
+
+        this.chanceCards = [
+            new ChanceDraw("Advance to GO", "Collect 200¢", (player) => { 
+                player.advanceTo(0);
+                logMessage(`${player.name} has advanced to GO through Chance.`);
+            }),
+            new ChanceDraw("Take a Walk on The Boardwalk", "Advance to Boardwalk; If You Pass GO, Collect 200¢", (player) => { 
+                player.advanceTo(39); 
+                logMessage(`${player.name} has advanced to Boardwalk through Chance.`);
+                player.tryPayRentFactor();                
+            }),
+            new ChanceDraw("Advance to Illinois Avenue", "If You Pass GO, Collect 200¢", (player) => { 
+                player.advanceTo(24); 
+                logMessage(`${player.name} has advanced to Illinois Avenue through Chance.`);
+                player.tryPayRentFactor();
+            }),
+            new ChanceDraw("Advance to St. Charles Place", "If You Pass GO, Collect 200¢", (player) => { 
+                player.advanceTo(11);
+                logMessage(`${player.name} has advanced to St. Charles Place through Chance.`);
+                player.tryPayRentFactor();
+            }),
+            new ChanceDraw("Take a Ride on the Reading", "Advance to Reading Railroad; If You Pass GO, Collect 200¢", (player) => { 
+                player.advanceTo(5);
+                logMessage(`${player.name} has advanced to Reading Railroad through Chance.`);
+                player.tryPayRentFactor();
+            }),
+            new ChanceDraw("Advance to the Nearest Railroad", "If OWNED, Pay the Owner Twice the Value to Which He/She is Otherwise Entitled; If UNOWNED, You May Buy it From the Bank", (player) => { 
+                if ((0 <= player.currentSquare && player.currentSquare < 5) || player.currentSquare > 35) {
+                    // reading railroad
+                    logMessage(`${player.name} has advanced to Reading Railroad through Chance.`);
+                    player.advanceTo(5);
+                } else if (5 <= player.currentSquare && player.currentSquare < 15) {
+                    // pennsylvania railroad
+                    logMessage(`${player.name} has advanced to Pennsylvania Railroad through Chance.`);
+                    player.advanceTo(15);
+                } else if (15 <= player.currentSquare && player.currentSquare < 25) {
+                    // B. & O. railroad
+                    logMessage(`${player.name} has advanced to B. & O. through Chance.`);
+                    player.advanceTo(25);
+                } else if (25 <= player.currentSquare && player.currentSquare < 35) {
+                    // short line
+                    logMessage(`${player.name} has advanced to B. & O. through Chance.`);
+                    player.advanceTo(35);
+                }
+
+                player.tryPayRentFactor(2);
+            }),
+            new ChanceDraw("Advance to the Nearest Utility", "If OWNED, Roll the Dice and Pay the Owner Ten Times the Amount Thrown; If UNOWNED, You May Buy it From the Bank", (player) => {
+                if ((0 <= player.currentSquare && player.currentSquare < 12) || player.currentSquare > 28) {
+                    // electric company
+                    logMessage(`${player.name} has advanced to Electric Company through Chance.`);
+                    player.advanceTo(12);
+                } else {
+                    // water works
+                    logMessage(`${player.name} has advanced to Water Works through Chance.`);
+                    player.advanceTo(28);
+                }
+
+                let amount = rollDice() * 10;
+                player.tryPayRent(amount);
+            }),
+            new ChanceDraw("Go Back 3 Spaces", "", (player) => {
+                player.currentSquare -= 3;
+                logMessage(`${player.name} has gone back to ${monopolyGame.squares[player.currentSquare].name} through Chance.`);
+                this.takePlayerAction();
+            }),
+            new ChanceDraw("From Bank Dividend", "Collect 50¢", (player) => { 
+                player.deposit(50);
+                logMessage(`${player.name} has collected 50¢ in Bank Dividends through Chance.`);
+            }),
+            new ChanceDraw("Your Building and Loan Maturues", "Collect 150¢", (player) => { 
+                player.deposit(150);
+                logMessage(`${player.name} has collected 150¢ in Building and Loan Maturation through Chance.`);
+            }),
+            new ChanceDraw("Settle Poor Tax", "Pay 15¢", (player) => { 
+                logMessage(`${player.name} must settle 15¢ in Poor Tax through Chance.`);
+                player.withdraw(15);
+            }),
+            new ChanceDraw("You Have Been Elected Chairperson of the Board", "Pay Each Player 50¢", (player) => {
+                let total = (this.players.length - 1) * 50;
+                logMessage(`${player.name} must settle ${total}¢ in fees as the new Chairperson through Chance.`);
+                
+                for (let other of this.players) {
+                    if (other !== player) {
+                        player.withdraw(50);
+                        other.deposit(50);
+                    }
+                }
+            }),
+            new ChanceDraw("Make General Repairs on All Your Property", "Pay 25¢ per House, 100¢ per Hotel", (player) => {
+                let balance = 0;
+                
+                for (let square of this.squares) {
+                    if ('owned' in square) {
+                        if (square.owned === player.turn) {
+                            switch (square.improvementState) {
+                                case 1: balance += 25;
+                                case 2: balance += 50;
+                                case 3: balance += 75;
+                                case 4: balance += 100;
+                                case 5: balance += 100;
+                            }
+                        }
+                    }
+                }
+
+                logMessage(`${player.name} must settle ${balance}¢ in General Property Repairs through Chance.`);
+                player.withdraw(balance);
+            }),
+            new ChanceDraw("Go Directly To Jail", "Do Not Pass GO; Do Not Collect 200¢", (player) => { 
+                logMessage(`${player.name} has been sent To Jail through Chance.`);
+                player.goToJail();
+            }),
+            new ChanceDraw("Get Out of Jail Free", "This Card May Be Kept Until Needed, Or Sold", (player) => {
+                logMessage(`${player.name} has won a Get Out of Jail Free Card through Chance.`);
+                player.bailCards++;
+            }),
+        ];
+
+        this.communityChestCards = [
+            new CommunityChestDraw("Advance to GO", "Collect 200¢", (player) => {
+                player.advanceTo(0);
+                logMessage(`${player.name} has advanced to GO through the Community Chest.`);
+            }),
+            new CommunityChestDraw("Life Insurance Matures", "Collect 100¢", (player) => { 
+                player.deposit(100);
+                logMessage(`${player.name} has collected 100¢ in Life Insurance Maturation though the Community Chest.`);
+            }),
+            new CommunityChestDraw("You Have Won Second Prize in a Beauty Contest", "Collect 10¢", (player) => {
+                player.deposit(100);
+                logMessage(`${player.name} has collected 10¢ in Beauty Prize Winnings though the Community Chest.`);
+            }),
+            new CommunityChestDraw("Bank Error in Your Favor", "Collect 200¢", (player) => {
+                player.deposit(100);
+                logMessage(`${player.name} has collected 100¢ in a favorable Bank Error through the Community Chest.`);
+            }),
+            new CommunityChestDraw("From Sale of Stock", "Collect 45¢", (player) => {
+                player.deposit(45);
+                logMessage(`${player.name} has collected 45¢ in Stock Sales through the Community Chest.`);
+            }),
+            new CommunityChestDraw("Income Tax Refund", "Collect 20¢", (player) => {
+                player.deposit(20);
+                logMessage(`${player.name} has collected 20¢ in an Income Tax Refund through the Community Chest.`);
+            }),
+            new CommunityChestDraw("For Your Services", "Collect 25¢", (player) => {
+                player.deposit(25);
+                logMessage(`${player.name} has collected 25¢ for His/Her Services through the Community Chest.`);
+            }),
+            new CommunityChestDraw("From Your Inheritance", "Collect 100¢", (player) => {
+                player.deposit(100);
+                logMessage(`${player.name} has collected 100¢ in Inheritance through the Community Chest`);
+            }),
+            new CommunityChestDraw("Xmas Fund Matures", "Collect 100¢", (player) => {
+                player.deposit(100);
+                logMessage(`${player.name} has collected 100¢ in Xmas Fund Maturation through the Community Chest.`);
+            }),
+            new CommunityChestDraw("Grand Opera Opening", "Collect 50¢ From Every Player", (player) => {
+                let amount = (this.players.length - 1) * 50;
+                logMessage(`${player.name} is due to collect ${amount}¢ in Opera Admission Fees through the Community Chest.`);
+                
+                for (let other of this.players) {
+                    if (other !== player) {
+                        other.withdraw(50);
+                        player.deposit(50);
+                    }
+                }
+            }),
+            new CommunityChestDraw("Doctor's Fee", "Pay 50¢", (player) => {
+                logMessage(`${player.name} must settle 100¢ in Doctor's Fees through the Community Chest.`);
+                player.withdraw(50);
+            }),
+            new CommunityChestDraw("Hospital Fee", "Pay 100¢", (player) => {
+                logMessage(`${player.name} must settle 100¢ in Hospital Fees through the Community Chest.`);
+                player.withdraw(100);
+            }),
+            new CommunityChestDraw("School Tax", "Pay 150¢", (player) => {
+                logMessage(`${player.name} must settle 150¢ in School Tax through the Community Chest.`);
+                player.withdraw(150);
+            }),
+            new CommunityChestDraw("You Are Assessed for Street Repairs", "Pay 40¢ per House, 115¢ per Hotel", (player) => {
+                let balance = 0;
+                
+                for (let square of this.squares) {
+                    if ('owned' in square) {
+                        if (square.owned === player.turn) {
+                            switch (square.improvementState) {
+                                case 1: balance += 40;
+                                case 2: balance += 80;
+                                case 3: balance += 120;
+                                case 4: balance += 160;
+                                case 5: balance += 115;
+                            }
+                        }
+                    }
+                }
+
+                logMessage(`${player.name} must settle ${balance}¢ in Street Repairs through the Community Chest.`);
+                player.withdraw(balance);
+            }),
+            new CommunityChestDraw("Go To Jail", "Go Directly to Jail; Do Not Pass GO; Do Not Collect 200¢", (player) => { 
+                logMessage(`${player.name} has been sent To Jail through the Community Chest.`);
+                player.goToJail();
+            }),
+            new CommunityChestDraw("Get Out of Jail Free", "This Card May Be Kept Until Needed, Or Sold", (player) => { 
+                logMessage(`${player.name} has won a Get Out of Jail Free Card through the Community Chest.`);
+                player.bailCards++;
+            }),
+        ];
 
         this.squares = [
             // bottom edge
@@ -272,7 +518,7 @@ class Game {
             // top edge
             new CornerSquare(20, "Free Parking", "&#x1F697;"),
             new ColorProperty(21, "Kentucky Avenue", 4, 220, 110, 18, 90, 250, 700, 875, 1050, 150),
-            new ChanceSquare(22, ),
+            new ChanceSquare(22),
             new ColorProperty(23, "Indiana Avenue", 4, 220, 110, 18, 90, 250, 700, 875, 1050, 150),
             new ColorProperty(24, "Illinois Avenue", 4, 240, 120, 20, 100, 300, 750, 925, 1100, 150),
             new RailroadProperty(25, "B. & O. Railroad", 200, 100),
@@ -288,7 +534,7 @@ class Game {
             new CommunityChestSquare(33),
             new ColorProperty(34, "Pennsylvania Avenue", 6, 320, 160, 28, 150, 450, 1000, 1200, 1400, 200),
             new RailroadProperty(35, "Short Line", 200, 100),
-            new ChanceSquare(36, ),
+            new ChanceSquare(36),
             new ColorProperty(37, "Park Place", 7, 350, 175, 35, 175, 500, 1100, 1300, 1500, 200),
             new TaxSquare(38, "Luxury Tax", 100, "&#x1F48D;"),
             new ColorProperty(39, "Boardwalk", 7, 400, 200, 50, 200, 600, 1400, 1700, 2000, 200),
@@ -437,6 +683,7 @@ class Game {
             case TaxSquare: {
                 if (player.currentSquare === 4) { // "income tax" 
                     let success = player.withdraw(200);
+
                     if (success) {
                         this.rebuildPlayerAccounts();
                         this.rebuildTurnBalances();
@@ -453,6 +700,22 @@ class Game {
                         this.bankrupt(player);
                     }
                 }
+            } break;
+
+            case CommunityChestSquare: {
+                let cardIndex = getRandomInt(0, this.communityChestCards.length);
+                let card = this.communityChestCards[cardIndex];
+                promptCommunityChestCard(card);
+            } break;
+
+            case JailSquare: {
+
+            } break;
+
+            case ChanceSquare: {
+                let cardIndex = getRandomInt(0, this.chanceCards.length);
+                let card = this.chanceCards[cardIndex];
+                promptChanceCard(card);
             } break;
         }
 
@@ -485,6 +748,12 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function rollDice() {
+    let die1 = getRandomInt(1, 6);
+    let die2 = getRandomInt(1, 6);
+    return [die1, die2];
+}
+
 class Player {
     constructor(name, color, turn) {
         this.name = name;
@@ -493,28 +762,61 @@ class Player {
         this.money = 1500;
         this.bailCards = 0;
         this.inJail = false;
+        this.jailAttemptsRemaining = 0;
         this.currentSquare = 0; // start on GO
         this.isBankrupt = false;
+        this.consecutiveDoubles = 0;
+    }
+
+    advanceTo(square) {
+        if (square < this.currentSquare) {
+            this.collectGO();
+        }
+
+        this.currentSquare = square;
+    }
+
+    collectGO() {
+        this.deposit(200);
+        logMessage(`${this.name} has collected 200¢ allowance from GO.`);
+    }
+
+    goToJail() {
+        this.currentSquare = 10;
+        this.inJail = true;
+        this.jailAttemptsRemaining = 3;
+        this.consecutiveDoubles = 0;
     }
 
     roll() {
         disableRoll();
         enableEndTurn();
 
-        let die1 = getRandomInt(1, 6);
-        let die2 = getRandomInt(1, 6);
-
+        let [die1, die2] = rollDice();
         let sum = die1 + die2;
+
         monopolyGame.lastDice = sum;
 
-        let doublesString = (die1 === die2) ? '(doubles) ' : '';
+        let doubles = die1 === die2;
+        if (doubles) {
+            this.consecutiveDoubles++;
+
+            if (this.consecutiveDoubles === 3) {
+                this.goToJail();
+            }
+        } else {
+            this.consecutiveDoubles = 0;
+        }
+
+        let doublesString = doubles ? '(doubles) ' : '';
 
         let targetSquare = (this.currentSquare + sum) % monopolyGame.squares.length;
         logMessage(`${this.name} rolled ${sum} ${doublesString}and landed on ${monopolyGame.squares[targetSquare].name}.`);
-        // ensure squares wrap around
 
-        // TODO: highlight all squares along the way
-        //monopolyGame.squares[targetSquare].
+        if (targetSquare < this.currentSquare) {
+            this.collectGO();
+        }
+
         monopolyGame.unhighlightAll();
         for (let i = this.currentSquare; i < this.currentSquare + sum; i++) {
             monopolyGame.squaresMarkup[i % monopolyGame.squaresMarkup.length].setAttribute('highlighted', '');
@@ -523,16 +825,21 @@ class Player {
         monopolyGame.squaresMarkup[targetSquare].removeAttribute('highlighted');
         monopolyGame.squaresMarkup[targetSquare].setAttribute('targeted', '');
 
-        monopolyGame.players[monopolyGame.currentTurn].currentSquare = targetSquare;
+        this.currentSquare = targetSquare;
 
         monopolyGame.takePlayerAction(monopolyGame.lastDice);
-
 
         // TODO: animate
     }
 
     trade() {
-        logMessage("Trading is not supported at this time");
+        tradePlayers.children[this.turn].setAttribute("disabled", true);
+
+        tradeRequestorDialog.showModal();
+
+        for (let child of tradePlayers.children) {
+            child.removeAttribute("disabled");
+        }
     }
 
     deposit(amount) {
@@ -549,10 +856,6 @@ class Player {
             let difference = amount - this.money;
             return this.raiseCapital(difference);
         }
-    }
-
-    payRent(toWhom) {
-        
     }
 
     raiseCapital(amount) {
@@ -574,13 +877,26 @@ class Player {
         return false;
     }
 
-    payRent(square, toWhom) {
-        let rent = square.currentRent();
+    tryPayRentFactor(factor = 1) {
+        let amount = square.currentRent() * factor;
+        this.tryPayRentAmount(amount);
+    }
 
-        if (this.money >= rent) {
-            this.withdraw(rent);
-            monopolyGame.players[toWhom].deposit(rent);
+    tryPayRentAmount(amount) {
+        let square = monopolyGame.squares[this.currentSquare];
+        let owner = square.owned;
 
+        if (owner != null) {
+            promptRent(amount);
+        } else {
+            promptBuy(square);
+        }
+    }
+
+    payRent(toWhom, amount) {
+        if (this.money >= amount) {
+            this.withdraw(amount);
+            monopolyGame.players[toWhom].deposit(amount);
             return true;
         }
 
@@ -784,6 +1100,13 @@ function initializationSequence() {
     disableEndTurn();
     monopolyGame.repositionPlayers();
     monopolyGame.resetCurrentTurn();
+
+    for (let player of monopolyGame.players) {
+        tradePlayers.insertAdjacentHTML("beforeend", `
+            <option>${player.name}</option>
+        `);
+    }
+
     logMessage(`Welcome to Monopoly! It's ${monopolyGame.players[0].name}'s turn to roll.`);
 }
 

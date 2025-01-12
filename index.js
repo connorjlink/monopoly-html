@@ -48,8 +48,9 @@ function payRent() {
     let player = currentPlayer();
     let square = monopolyGame.squares[player.currentSquare];
     let owner = square.owned;
+    let amount = square.currentRent();
 
-    let success = player.payRent(square, owner);
+    let success = player.payRent(owner, amount);
 
     if (success) {
         logMessage(`${player.name} has paid ${square.currentRent()}¢ to ${monopolyGame.players[owner].name}.`);
@@ -304,15 +305,141 @@ function promptWin(name) {
 }
 
 
+// trade requestor screen
+const tradeRequestorDialog = document.getElementById("traderequestor-dialog");
+const tradePlayers = document.getElementById("trade-players");
 
-const game = document.getElementById("game");
-game.classList.toggle("hidden", true);
+var requestee = null;
+var requestor = null;
+
+var offeredProperties = [];
+
+function submitTradeRequest() {
+    requestee = monopolyGame.players[tradePlayers.selectedIndex];
+    requestor = currentPlayer();
+
+    for (let element of tradeRequestee) {
+        element.textContent = requestee.name;
+    }
+
+    for (let element of tradeRequestor) {
+        element.textContent = requestor.name;
+    }
+
+    logMessage(`${requestor.name} has requested to trade with ${requestee.name}.`);
+    tradeRequestorDialog.close();
+    tradeRequestDialog.showModal();
+}
+
+
+// trade request screen
+const tradeRequestDialog = document.getElementById("traderequest-dialog");
+const tradeRequestee = document.getElementsByClassName("trade-requestee");
+const tradeRequestor = document.getElementsByClassName("trade-requestor");
+
+function acceptTradeRequest() {
+    logMessage(`${requestee.name} has agreed to trade with ${requestor.name}.`);
+    tradeRequestDialog.close();
+
+    tradeCash.textContent = '';
+
+    tradeProperties.innerHTML = '';
+    for (let square of monopolyGame.squares) {
+        if ('owned' in square) {
+            if (square.owned == requestor.turn) {
+                offeredProperties.push(square.square);
+
+                tradeProperties.insertAdjacentHTML("beforeend", `
+                    <option>${square.name}</option>
+                `);
+            }
+        }
+    }
+
+    tradeCards.innerHTML = '';
+    for (let i = 0; i < requestor.bailCards; i++) {
+        tradeCards.insertAdjacentHTML("beforeend", `
+            <option>Get Out of Jail Free Card</option>
+        `);
+    }
+
+    tradeDialog.showModal();
+}
+
+
+// trade screen
+const tradeDialog = document.getElementById("trade-dialog");
+const tradeOffer = document.getElementsByClassName("trade-offer");
+const tradeCash = document.getElementById("trade-cash");
+const tradeProperties = document.getElementById("trade-properties");
+const tradeCards = document.getElementById("trade-cards");
+
+function makeTradeOffer() {
+
+}
+
+
+// draw screen
+const drawDialog = document.getElementById("draw-dialog");
+const drawType = document.getElementById("draw-type");
+const drawTitle = document.getElementById("draw-title");
+const drawText = document.getElementById("draw-text");
+
+var currentCard = null;
+
+function promptCard(card, type) {
+    drawType.textContent = type;
+    drawTitle.textContent = card.title;
+    drawText.textContent = card.text;
+
+    currentCard = card;
+    drawDialog.showModal();
+}
+
+function promptCommunityChestCard(card) {
+    promptCard(card, "Community Chest");
+}
+
+function promptChanceCard(card) {
+    promptCard(card, "Chance");
+}
+
+function acceptDraw() {
+    let player = currentPlayer();
+    currentCard.functor(player);
+    drawDialog.close();
+}
+
+
+// jail screen
+const jailDialog = document.getElementById("jail-dialog");
+const jailUseCard = document.getElementById("jail-usecard");
+const jailCardsRemaining = document.getElementById("jail-cardsremaining");
+const jailPayBail = document.getElementById("jail-paybail");
+const jailAttemptsRemaining = document.getElementById("jail-attemptsremaining");
+
+function promptJail() {
+    let player = currentPlayer();
+
+    jailUseCard.toggleAttribute('disabled', player.bailCards != 0);
+    jailCardsRemaining.textContent = player.bailCards;
+    jailPayBail.toggleAttribute('disabled', player.bailCards != 0);
+    jailAttemptsRemaining.textContent = player.jailAttemptsRemaining;
+}
+
+
 
 function startGame() {
     newgameDialog.close();
     initializationSequence();
-    game.classList.toggle("hidden", false);
+    // navigate to the board view
+    showTab(0);
 }
+
+
+// -----------------------------------------------------------------
+// | All of the below is for the mouse hover effect on title deeds |
+// -----------------------------------------------------------------
 
 function transitionRotate(card) {
     card.style.transition = 'transform 250ms ease-out';
@@ -368,4 +495,3 @@ for (const card of deeds) {
         }, { once: true }); // Ensure it runs only once per mouseleave
     });
 }
-

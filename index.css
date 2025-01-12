@@ -1,14 +1,17 @@
-:root {
-    * {
-        box-sizing: border-box;
-        appearance: none;
-        color: var(--foreground);
-        font-family: system-ui;
-        perspective: 1500px;
-    }
+* {
+    box-sizing: border-box;
+    appearance: none;
+    color: var(--foreground);
+    font-family: system-ui;
+    perspective: 1500px;
 }
 
 header {
+    h1 {
+        color: red;
+        text-shadow: 2px 2px 0px var(--foreground);
+    }
+
     nav {
         ul {
             list-style-type: none;
@@ -169,11 +172,6 @@ textarea {
     border-bottom: 2px solid var(--background-l);
 }
 
-.game-title {
-    color: red;
-    text-shadow: 2px 2px 0px var(--foreground);
-}
-
 #auctionturn-container {
     display: flex;
     gap: 10px;
@@ -230,4 +228,37 @@ textarea {
 
 .withdrawn {
     filter: contrast(0);
+}
+
+.trade-offer {
+    display: flex;
+    width: max-content;
+    padding-bottom: 0 !important;
+    margin: 20px;
+
+    ul {
+        list-style-type: none;
+
+        li {
+            padding: 5px;
+            margin: 5px;
+        }
+    }
+
+    .left {
+        text-align: right;
+        margin: 0;
+
+        li {
+            margin: 7px;
+        }
+    }
+
+    .right {
+        margin: 0;
+    }
+
+    input, select {
+        width: 10em;
+    }
 }
