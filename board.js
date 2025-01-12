@@ -51,15 +51,70 @@ function property(name, color, cost, owned, target, highlight) {
     `;
 }
 
-function corner(target, highlight) {
+function corner(which, target, highlight) {
     let targeted = (target == null ? "" : "targeted");
     let highlighted = (highlight == null ? "" : "highlighted");
 
-    return `
-    <div class="corner ${targeted} ${highlighted}">
+    if (which == 0) {
+        return `
+        <div class="corner ${targeted} ${highlighted} go">
+            <div class="go-wrapper">
+                <div class="top-wrapper">
+                    <p class="top">COLLECT 200¢ SALARY AS YOU PASS</p>
+                    <p class="middle">GO</p>
+                </div>
 
-    </div>
-    `;
+                <p class="bottom">&larrtl;</p>
+            </div>
+        </div>
+        `;
+    } else if (which == 1) {
+        return `
+        <div class="corner ${targeted} ${highlighted} jail">
+            <div class="jail-wrapper">
+                <div class="injail">
+                    <div class="injail-wrapper">
+                        <p class="top">IN</p>
+
+                        <div class="middle">
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                        </div>
+
+                        <p class="bottom">JAIL</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="justvisiting">
+                <p class="just">JUST</p>
+                <p class="visting">VISITING</p>
+            </div>
+        </div>
+        `;
+    } else if (which == 2) {
+        return `
+        <div class="corner ${targeted} ${highlighted} freeparking">
+            <div class="freeparking-wrapper">
+                <p class="top">FREE</p>
+                <p class="middle">&#x1F17F;</p>
+                <p class="bottom">PARKING</p>
+            </div>
+        </div>
+        `;
+    } else if (which == 3) {
+        return `
+        <div class="corner ${targeted} ${highlighted} gotojail">
+            <div class="gotojail-wrapper">
+                <p class="top">GO TO</p>
+                <p class="middle">&#x1F6A8;</p>
+                <p class="bottom">JAIL</p>
+            </div>
+        </div>
+        `;
+    }
 }
 
 function iconic(name, icon, cost, owned, target, highlight) {
@@ -161,9 +216,10 @@ class BoardCorner extends HTMLElement {
         const target = this.getAttribute('targeted');
         const highlight = this.getAttribute('highlighted');
         const players = this.getAttribute('players');
+        const which = this.getAttribute('which');
 
         // TODO: extract the square attribute
-        this.innerHTML = wrap(corner(target, highlight), players);
+        this.innerHTML = wrap(corner(which, target, highlight), players);
     }
 
     connectedCallback() {

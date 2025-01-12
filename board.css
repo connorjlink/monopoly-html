@@ -280,7 +280,11 @@
     }
 
     .freeparking-wrapper {
-        transform: rotate(-225deg);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        transform: rotate(-45deg);
+        height: 100%;
     }
 }
 
@@ -290,7 +294,7 @@
     }
 
     .top {
-        font-size: 8pt;
+        font-size: 6pt;
         margin-top: 0;
     }
 
@@ -301,10 +305,99 @@
     }
 
     .top-wrapper {
-        transform: rotate(-45deg) translateX(10px);
+        transform: rotate(-45deg) translateX(5px);
     }
 
     .go-wrapper {
-        transform: translateY(-5px);
+        /* transform: translateY(-5px); */
+    }
+}
+
+.jail-wrapper {
+    display: flex;
+    justify-content: right;
+    width: 100%;
+    height: 100%;
+
+    .injail {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: orange;
+        border-width: 0 0 1px 1px;
+        border-style: solid;
+        border-color: black;
+        width: 75%;
+        height: 75%;
+
+        p {
+            margin: 0;
+        }
+
+        .injail-wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            transform: rotate(45deg);
+        }
+
+        .middle {
+            display: flex;
+            justify-content: center;
+            background: white;
+            border-color: black;
+            border-style: solid;
+            border-width: 2px 1px;
+            width: 40px;
+            height: 40px;
+
+            .bar {
+                border-color: black;
+                border-style: solid;
+                border-width: 0 1px;
+                width: calc(100% / 3);
+            }
+        }
+    }
+}
+
+.justvisiting {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+
+    .just {
+        position: absolute;
+        transform: rotate(90deg) translateY(44px);
+    }
+
+    .visting {
+        position: absolute;
+        transform: translateY(44px);
+    }
+}
+
+.gotojail-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    transform: rotate(45deg);
+
+    .top {
+        margin-bottom: 0;
+    }
+
+    .middle {
+        font-size: 40pt;
+    }
+
+    .bottom {
+        margin-top: 0;
     }
 }
