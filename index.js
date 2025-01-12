@@ -53,7 +53,7 @@ function payRent() {
     let success = player.payRent(owner, amount);
 
     if (success) {
-        logMessage(`${player.name} has paid ${square.currentRent()}¢ to ${monopolyGame.players[owner].name}.`);
+        logMessage(`${player.name} has paid ${square.currentRent()}¢ in rent to ${monopolyGame.players[owner].name}.`);
         rentDialog.close();
     } else {
         promptInsufficientFunds();
@@ -425,6 +425,18 @@ function promptJail() {
     jailCardsRemaining.textContent = player.bailCards;
     jailPayBail.toggleAttribute('disabled', player.bailCards != 0);
     jailAttemptsRemaining.textContent = player.jailAttemptsRemaining;
+}
+
+
+// go to jail screen
+const goToJailDialog = document.getElementById("gotojail-dialog");
+
+function promptGoToJail() {
+    goToJailDialog.showModal();
+}
+
+function acceptGoToJail() {
+    goToJailDialog.close();
 }
 
 

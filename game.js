@@ -132,7 +132,7 @@ class RailroadProperty extends AbstractSquare {
         for (let square of monopolyGame.squares) {
             if (square.constructor === RailroadProperty) {
                 if (square.owned == this.owned) {
-                    railroadsOwned[square.owned]++;
+                    railroadsOwned++;
                 }
             }
         }
@@ -193,7 +193,7 @@ class CornerSquare extends AbstractSquare {
     }
 }
 
-class JailSquare extends AbstractSquare {
+class GoToJailSquare extends AbstractSquare {
     constructor(square, name, icon) {
         // no meaningful color, cost, or mortval
         super(square, name, null, null, null, icon);
@@ -244,6 +244,7 @@ class TaxSquare extends AbstractSquare {
         super(square, name, null, cost, null, icon);
     }
 }
+
 
 
 class AbstractDraw {
@@ -339,7 +340,7 @@ class Game {
                 }
 
                 let amount = rollDice() * 10;
-                player.tryPayRent(amount);
+                player.tryPayRentAmount(amount);
             }),
             new ChanceDraw("Go Back 3 Spaces", "", (player) => {
                 player.currentSquare -= 3;
@@ -702,14 +703,14 @@ class Game {
                 }
             } break;
 
+            case GoToJailSquare: {
+
+            } break;
+
             case CommunityChestSquare: {
                 let cardIndex = getRandomInt(0, this.communityChestCards.length);
                 let card = this.communityChestCards[cardIndex];
                 promptCommunityChestCard(card);
-            } break;
-
-            case JailSquare: {
-
             } break;
 
             case ChanceSquare: {
@@ -786,6 +787,8 @@ class Player {
         this.inJail = true;
         this.jailAttemptsRemaining = 3;
         this.consecutiveDoubles = 0;
+        logMessage(`${this.name} has been sent to Jail.`);
+        promptGoToJail();
     }
 
     roll() {
@@ -793,7 +796,9 @@ class Player {
         enableEndTurn();
 
         let [die1, die2] = rollDice();
+        die1 = die2;
         let sum = die1 + die2;
+
 
         monopolyGame.lastDice = sum;
 
@@ -803,6 +808,7 @@ class Player {
 
             if (this.consecutiveDoubles === 3) {
                 this.goToJail();
+                return;
             }
         } else {
             this.consecutiveDoubles = 0;
@@ -878,6 +884,7 @@ class Player {
     }
 
     tryPayRentFactor(factor = 1) {
+        let square = monopolyGame.squares[this.currentSquare];
         let amount = square.currentRent() * factor;
         this.tryPayRentAmount(amount);
     }
