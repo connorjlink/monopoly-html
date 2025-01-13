@@ -230,38 +230,29 @@ textarea {
     filter: contrast(0);
 }
 
-.tradegive-offer {
+.trade-give, .trade-want, .trade-get, .trade-cede {
     display: flex;
-    width: max-content;
-    padding-bottom: 0 !important;
-    margin: 20px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 
-    ul {
-        list-style-type: none;
-
-        li {
-            padding: 5px;
-            margin: 5px;
-        }
-    }
-
-    .left {
+    label {
+        display: inline-block;
+        width: 40%;
         text-align: right;
-        margin: 0;
-
-        li {
-            margin: 7px;
-        }
     }
 
-    .right {
-        display: flex;
-        flex-direction: column;
-        margin: 0;
+    label, input, select {
+        vertical-align: middle;
     }
 
     input, select {
         width: 10em;
         height: 3em;
     }
+}
+
+.trade-want {
+    padding-bottom: 20px;
 }

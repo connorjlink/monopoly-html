@@ -312,7 +312,8 @@ const tradePlayers = document.getElementById("trade-players");
 var requestee = null;
 var requestor = null;
 
-var offeredProperties = [];
+var givePropertiesList = [];
+var wantPropertiesList = [];
 
 function submitTradeRequest() {
     requestee = monopolyGame.players[tradePlayers.selectedIndex];
@@ -341,24 +342,39 @@ function acceptTradeRequest() {
     logMessage(`${requestee.name} has agreed to trade with ${requestor.name}.`);
     tradeRequestDialog.close();
 
-    tradeCash.textContent = '';
+    giveCash.textContent = '';
+    wantCash.textContent = '';
 
-    tradeProperties.innerHTML = '';
+    giveProperties.innerHTML = '';
+    wantProperties.innerHTML = '';
+
     for (let square of monopolyGame.squares) {
         if ('owned' in square) {
             if (square.owned == requestor.turn) {
-                offeredProperties.push(square.square);
+                givePropertiesList.push(square.square);
 
-                tradeProperties.insertAdjacentHTML("beforeend", `
+                giveProperties.insertAdjacentHTML("beforeend", `
+                    <option>${square.name}</option>
+                `);
+            } else if (square.owned == requestee.turn) {
+                wantPropertiesList.push(square.square);
+
+                wantProperties.insertAdjacentHTML("beforeend", `
                     <option>${square.name}</option>
                 `);
             }
         }
     }
 
-    tradeCards.innerHTML = '';
+    giveCards.innerHTML = '';
+    wantCards.innerHTML = '';
+
     for (let i = 0; i < requestor.bailCards; i++) {
-        tradeCards.insertAdjacentHTML("beforeend", `
+        giveCards.insertAdjacentHTML("beforeend", `
+            <option>Get Out of Jail Free Card</option>
+        `);
+
+        wantCards.insertAdjacentHTML("beforeend", `
             <option>Get Out of Jail Free Card</option>
         `);
     }
@@ -377,15 +393,32 @@ const wantProperties = document.getElementById("want-properties");
 const wantCards = document.getElementById("want-cards");
 
 function makeTradeOffer() {
+    getCash.textContent = giveCash.textContent || 0;
+    getProperties.selectedOptions = givePropertiesList.selectedOptions;
+    getCards.selectedOptions = giveCards.selectedOptions;
 
+    wantCash.textContent = cedeCash.textContent || 0;
+    wantPropertiesList.selectedOptions = cedeProperties.selectedOptions;
+    wantCards.selectedOptions = cedeCards.selectedOptions;
+
+    tradeOfferDialog.showModal();
 }
 
 
 // trade offer screen 
 const tradeOfferDialog = document.getElementById("tradeoffer-dialog");
+const getCash = document.getElementById("get-cash");
+const getProperties = document.getElementById("get-properties");
+const getCards = document.getElementById("get-cards");
+const cedeCash = document.getElementById("cede-cash");
+const cedeProperties = document.getElementById("cede-properties");
+const cedeCards = document.getElementById("cede-cards");
 
 function acceptTradeOffer() {
-    
+    // TODO: transfer ownership
+
+    tradeOfferDialog.close();
+    tradeDialog.close();
     logMessage(`${requestee.name} has accepted ${requestor.name}'s trade offer.`);
 }
 

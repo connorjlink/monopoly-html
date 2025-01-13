@@ -226,7 +226,38 @@
             <hr>
 
             <h2><span class="trade-requestor"></span>'s Offer</h2>
-            <div class="trade-offer"></div>
+            <i>You are trading with <span class="trade-requestor"></span></i>
+
+            
+            <h3>You Get</h3>
+            <div class="trade-get">
+                <label>Cash
+                    <input disabled id="get-cash">
+                </label>
+
+                <label>Properties
+                    <select disabled id="get-properties" multiple></select>
+                </label>
+
+                <label>Cards
+                    <select disabled id="get-cards" multiple></select>
+                </label>
+            </div>
+
+            <h3>You Cede</h3>
+            <div class="trade-cede">
+                <label>Cash
+                    <input disabled id="cede-cash">
+                </label>
+
+                <label>Properties
+                    <select disabled id="cede-properties" multiple></select>
+                </label>
+
+                <label>Cards
+                    <select disabled id="cede-cards" multiple></select>
+                </label>
+            </div>
 
             <button onclick="acceptTradeOffer()">Accept</button>
             <button onclick="rejectTradeOffer()">Reject</button>
