@@ -29,8 +29,14 @@
 
 .titlebar {
     border: 1px solid var(--foreground);
-    background-color: forestgreen;
     margin: 12px 0px;
+    white-space: nowrap; 
+    
+    h2 {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        padding: 0 5px;
+    }
 }
 
 .title-content {

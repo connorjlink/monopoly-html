@@ -1,5 +1,6 @@
 const navLinks = document.getElementById("navbar");
 const tabContents = document.getElementById("game");
+const assetContainer = document.getElementById("asset-container");
 
 function showTab(index) {
     var links = navLinks.children;
@@ -143,7 +144,6 @@ function confirmBuy() {
     } else {
         promptInsufficientFunds();
     }
-
 }
 
 function rejectBuy() {
@@ -490,6 +490,9 @@ function promptPropertyManagement() {
         }
     }
 
+    selectedProperty.value = '';
+    improveProperty.toggleAttribute('disabled', true);
+    demolishProperty.toggleAttribute('disabled', true);
     managementDialog.showModal();
 }
 
@@ -515,25 +518,42 @@ function updateManagementButtons(square) {
     }
 }
 
-function manageSelectedProperty(functor) {
+selectedProperty.addEventListener("change", () => {
+    let value = selectedProperty.value;
+
+    for (let square of monopolyGame.squares) {
+        if (value === square.name) {
+            updateManagementButtons(square);
+        }
+    }
+
+    improveProperty.toggleAttribute('disabled', false);
+    demolishProperty.toggleAttribute('disabled', false);
+});
+
+function manageSelectedProperty(isImprove) {
     let player = currentPlayer();
     let propertyName = selectedProperty.value;
 
     for (let square of monopolyGame.squares) {
         if (propertyName === square.name) {
-            // TODO:
-            eval(`square.${functor}`);
+            if (isImprove) {
+                square.tryImprove(player, monopolyGame);
+            } else {
+                square.tryDemolish(player, monopolyGame);
+            }
+
             updateManagementButtons(square);
         }
     }
 }
 
 function improveSelectedProperty() {
-    manageSelectedProperty('tryImprove');
+    manageSelectedProperty(true);
 }
 
 function demolishSelectedProperty() {
-    manageSelectedProperty('tryDemolish');
+    manageSelectedProperty(false);
 }
 
 

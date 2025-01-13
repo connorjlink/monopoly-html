@@ -1,15 +1,18 @@
-function deed(name, rent0, rent1, rent2, rent3, rent4, rent5, mortval, devcost) {
+function colorDeed(name, rent0, rent1, rent2, rent3, rent4, rent5, mortval, devcost, isMortgaged, color) {
+    let mortgagedText = isMortgaged == true ? `
+    <div class="mortgaged">
+        <svg viewBox="0 0 10 10" preserveAspectRatio="none">
+            <line x1="0" y1="0" x2="10" y2="10" stroke="red" stroke-width="0.1"/>
+            <line x1="10" y1="0" x2="0" y2="10" stroke="red" stroke-width="0.1"/>
+        </svg>
+    </div>` : '';
+    
     return `
     <div class="deed">
-        <div class="mortgaged">
-            <svg viewBox="0 0 10 10" preserveAspectRatio="none">
-                <line x1="0" y1="0" x2="10" y2="10" stroke="red" stroke-width="0.1"/>
-                <line x1="10" y1="0" x2="0" y2="10" stroke="red" stroke-width="0.1"/>
-            </svg>
-        </div>
+        ${mortgagedText}
 
         <div class="title-content">
-            <div class="titlebar">
+            <div class="titlebar" style="background: ${color}">
                 <p>TITLE DEED</p>
                 <h2>${name}</h2>
             </div>
@@ -52,15 +55,18 @@ function deed(name, rent0, rent1, rent2, rent3, rent4, rent5, mortval, devcost) 
     `;
 }
 
-function utility(name, icon) {
+function utilityDeed(name, icon, isMortgaged) {
+    let mortgagedText = isMortgaged == true ? `
+    <div class="mortgaged">
+        <svg viewBox="0 0 10 10" preserveAspectRatio="none">
+            <line x1="0" y1="0" x2="10" y2="10" stroke="red" stroke-width="0.1"/>
+            <line x1="10" y1="0" x2="0" y2="10" stroke="red" stroke-width="0.1"/>
+        </svg>
+    </div>` : '';
+
     return `
     <div class="deed">
-        <div class="mortgaged">
-            <svg viewBox="0 0 10 10" preserveAspectRatio="none">
-                <line x1="0" y1="0" x2="10" y2="10" stroke="red" stroke-width="0.1"/>
-                <line x1="10" y1="0" x2="0" y2="10" stroke="red" stroke-width="0.1"/>
-            </svg>
-        </div>
+        ${mortgagedText}
 
         <div class="utility-content">
             <div class="icon">${icon}</div>
@@ -81,16 +87,19 @@ function utility(name, icon) {
     `;
 }
 
-function railroad(name) {
+function railroadDeed(name, isMortgaged) {
+    let mortgagedText = isMortgaged == true ? `
+    <div class="mortgaged">
+        <svg viewBox="0 0 10 10" preserveAspectRatio="none">
+            <line x1="0" y1="0" x2="10" y2="10" stroke="red" stroke-width="0.1"/>
+            <line x1="10" y1="0" x2="0" y2="10" stroke="red" stroke-width="0.1"/>
+        </svg>
+    </div>` : '';
+    
     return `
     <div class="deed">
-        <div class="mortgaged">
-            <svg viewBox="0 0 10 10" preserveAspectRatio="none">
-                <line x1="0" y1="0" x2="10" y2="10" stroke="red" stroke-width="0.1"/>
-                <line x1="10" y1="0" x2="0" y2="10" stroke="red" stroke-width="0.1"/>
-            </svg>
-        </div>
-    
+        ${mortgagedText}
+
         <div class="utility-content">
             <div class="icon">&#x1F686;</div>
     
@@ -138,8 +147,10 @@ class TitleDeed extends HTMLElement {
         const rent5 = this.getAttribute('rent5');
         const mortval = this.getAttribute('mortval');
         const devcost = this.getAttribute('devcost');
+        const isMortgaged = this.getAttribute('mortgaged');
+        const color = this.getAttribute('color');
 
-        this.innerHTML = deed(name, rent0, rent1, rent2, rent3, rent4, rent5, mortval, devcost);
+        this.innerHTML = colorDeed(name, rent0, rent1, rent2, rent3, rent4, rent5, mortval, devcost, isMortgaged, color);
     }
 }
 
@@ -151,8 +162,9 @@ class UtilityDeed extends HTMLElement {
     connectedCallback() {
         const name = this.getAttribute('name');
         const icon = this.getAttribute('icon');
+        const isMortgaged = this.getAttribute('mortgaged');
 
-        this.innerHTML = utility(name, icon);
+        this.innerHTML = utilityDeed(name, icon, isMortgaged);
     }
 }
 
@@ -163,8 +175,9 @@ class RailroadDeed extends HTMLElement {
 
     connectedCallback() {
         const name = this.getAttribute('name');
+        const isMortgaged = this.getAttribute('mortgaged');
 
-        this.innerHTML = railroad(name);
+        this.innerHTML = railroadDeed(name, isMortgaged);
     }
 }
 

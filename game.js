@@ -27,7 +27,7 @@ class AbstractSquare {
     }
 
     tryImprove(player, game) {
-        let [can, reason] = this.canImprove();
+        let [can, reason] = this.canImprove(player);
 
         if (can) {
             if (this.improvementState === -1) {
@@ -35,6 +35,7 @@ class AbstractSquare {
                 let cost = this.mortgageValue * 1.1;
                 if (player.withdraw(cost)) {
                     this.improvementState++;
+                    game.rebuildTitleDeeds();
                     logMessage(`${player.name} has unmortgaged ${this.name} for ${cost}¢.`);
                 }
             } else {
@@ -59,7 +60,7 @@ class AbstractSquare {
     }
 
     tryDemolish(player, game) {
-        let [can, reason] = this.canDemolish();
+        let [can, reason] = this.canDemolish(player);
 
         if (can) {
             this.improvementState--;
@@ -214,11 +215,11 @@ class RailroadProperty extends AbstractSquare {
         }
     }
 
-    canImprove() {
+    canImprove(player) {
         return [this.improvementState === -1, 'railroad properties cannot be developed'];
     }
 
-    canDemolish() {
+    canDemolish(player) {
         return [this.improvementState === 0, 'railroad properties cannot be developed'];
     }
 }
@@ -237,11 +238,11 @@ class UtilityProperty extends AbstractSquare {
         }
     }
 
-    canImprove() {
+    canImprove(player) {
         return [this.improvementState === -1, 'utility properties cannot be developed'];
     }
 
-    canDemolish() {
+    canDemolish(player) {
         return [this.improvementState === 0, 'utility properties cannot be developed'];
     }
 }
@@ -252,11 +253,11 @@ class CornerSquare extends AbstractSquare {
         super(square, name, null, null, null, icon);
     }
 
-    canImprove() {
+    canImprove(player) {
         return [false, 'corner squares cannot be developed'];
     }
 
-    canDemolish() {
+    canDemolish(player) {
         return [false, 'corner squares cannot be developed'];
     }
 }
@@ -267,11 +268,11 @@ class GoToJailSquare extends AbstractSquare {
         super(square, name, null, null, null, icon);
     }
 
-    canImprove() {
+    canImprove(player) {
         return [false, 'corner squares cannot be developed'];
     }
 
-    canDemolish() {
+    canDemolish(player) {
         return [false, 'corner squares cannot be developed'];
     }
 }
@@ -282,11 +283,11 @@ class CommunityChestSquare extends AbstractSquare {
         super(square, "Community Chest", null, "Follow Card Instructions", null, "&#x1F4E6;");
     }
 
-    canImprove() {
+    canImprove(player) {
         return [false, 'community chest squares cannot be developed'];
     }
 
-    canDemolish() {
+    canDemolish(player) {
         return [false, 'community chest squares cannot be developed'];
     }
 }
@@ -297,11 +298,11 @@ class ChanceSquare extends AbstractSquare {
         super(square, "Chance", null, "", null, "&quest;");
     }
 
-    canImprove() {
+    canImprove(player) {
         return [false, 'chance squares cannot be developed'];
     }
 
-    canDemolish() {
+    canDemolish(player) {
         return [false, 'chance squares cannot be developed'];
     }
 }
@@ -668,6 +669,29 @@ class Game {
         }
     }
 
+    rebuildTitleDeeds() {
+        let player = this.players[this.currentTurn];
+        
+        assetContainer.innerHTML = '';
+
+        for (let square of this.squares) {
+            if (square.owned == player.turn) {
+                assetContainer.insertAdjacentHTML("beforeend", this.generateTitleDeed(square));
+            }
+        }
+    }
+
+    generateTitleDeed(square) {
+        let isMortgaged = square.improvementState === -1;
+
+        switch (square.constructor) {
+            case RailroadProperty: return `<railroad-deed name="${square.name}" mortgaged="${isMortgaged}"></railroad-deed>`;
+            case UtilityProperty: return `<utility-deed name="${square.name.toUpperCase()}" icon="${square.icon}" mortgaged="${isMortgaged}"></utility-deed>`; 
+            case ColorProperty: return `<title-deed name="${square.name}" rent0="${square.rent0}" rent1="${square.rent1}" rent2="${square.rent2}" rent3="${square.rent3}" rent4="${square.rent4}" rent5="${square.rent5}" mortval="${square.mortgageValue}" devcost="${square.improvementCost}" mortgaged="${isMortgaged}" color="${propertyColors[square.color]}"></title-deed>`;
+            default: return '';
+        }
+    }
+
     unhighlightAll() {
         for (let square of monopolyGame.squaresMarkup) {
             square.removeAttribute('highlighted');
@@ -715,8 +739,6 @@ class Game {
                     let success = player.withdraw(200);
 
                     if (success) {
-                        this.rebuildPlayerAccounts();
-                        this.rebuildTurnBalances();
                         logMessage(`${player.name} has paid 200¢ in income tax.`);
                     } else {
                         this.bankrupt(player);
@@ -885,12 +907,14 @@ class Player {
     deposit(amount) {
         this.money += amount;
         monopolyGame.rebuildTurnBalances();
+        monopolyGame.rebuildPlayerAccounts();
     }
 
     withdraw(amount) {
         if (this.money >= amount) {
             this.money -= amount;
             monopolyGame.rebuildTurnBalances();
+            monopolyGame.rebuildPlayerAccounts();
             return true;
         } else {
             let difference = amount - this.money;
@@ -904,13 +928,13 @@ class Player {
     }
 
     buy(square, costOverride) {
-        let cost = costOverride == null ? square.cost : costOverride;
+        let cost = costOverride ?? square.cost;
 
         if (this.money >= cost) {
             this.withdraw(cost);
             square.owned = this.turn;
             monopolyGame.squaresMarkup[square.square].setAttribute('owned', this.turn);
-
+            monopolyGame.rebuildTitleDeeds();
             return true;
         }
 
@@ -949,6 +973,7 @@ class Player {
         monopolyGame.repositionPlayers();
         monopolyGame.nextTurn();
         monopolyGame.resetCurrentTurn();
+        monopolyGame.rebuildTitleDeeds();
 
         enableRoll();
         disableEndTurn();
@@ -992,25 +1017,6 @@ class Player {
 
     computeNetWorth() {
         return this.computeAssets() - this.computeLiabilities();
-    }
-
-
-    tryImprove(property) {
-        const cost = property.improvementCost;
-
-        // improvement successful
-        if (true) {
-            this.money -= cost;
-            property.improvementState++;
-        }
-    }
-
-    tryDemolish(property) {
-        // demolition successful 
-        if (true) {
-            this.money += cost;
-            property.improvementState++;
-        }
     }
 }
 
