@@ -369,13 +369,30 @@ function acceptTradeRequest() {
 
 // trade screen
 const tradeDialog = document.getElementById("trade-dialog");
-const tradeOffer = document.getElementsByClassName("trade-offer");
-const tradeCash = document.getElementById("trade-cash");
-const tradeProperties = document.getElementById("trade-properties");
-const tradeCards = document.getElementById("trade-cards");
+const giveCash = document.getElementById("give-cash");
+const giveProperties = document.getElementById("give-properties");
+const giveCards = document.getElementById("give-cards");
+const wantCash = document.getElementById("want-cash");
+const wantProperties = document.getElementById("want-properties");
+const wantCards = document.getElementById("want-cards");
 
 function makeTradeOffer() {
 
+}
+
+
+// trade offer screen 
+const tradeOfferDialog = document.getElementById("tradeoffer-dialog");
+
+function acceptTradeOffer() {
+    
+    logMessage(`${requestee.name} has accepted ${requestor.name}'s trade offer.`);
+}
+
+function rejectTradeOffer() {
+    tradeOfferDialog.close();
+    tradeDialog.close();
+    logMessage(`${requestee.name} has rejected ${requestor.name}'s trade offer.`);
 }
 
 

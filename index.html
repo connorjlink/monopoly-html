@@ -187,22 +187,34 @@
             <i>You are trading with <span class="trade-requestee"></span></i>
 
             <h3>You Give</h3>
-            <div class="tradegive-offer">
-                <ul class="left">
-                    <li>Cash</li>
-                    <li>Properties</li>
-                    <li>Cards</li>
-                </ul>
+            <div class="trade-give">
+                <label>Cash
+                    <input id="give-cash">
+                </label>
 
-                <ul class="right">
-                    <input id="trade-cash">
-                    <select id="trade-properties" multiple></select>
-                    <select id="trade-cards" multiple></select>
-                </ul>
+                <label>Properties
+                    <select id="give-properties" multiple></select>
+                </label>
+
+                <label>Cards
+                    <select id="give-cards" multiple></select>
+                </label>
             </div>
 
             <h3>You Want</h3>
-            <div class="tradewant-offer"></div>
+            <div class="trade-want">
+                <label>Cash
+                    <input id="want-cash">
+                </label>
+
+                <label>Properties
+                    <select id="want-properties" multiple></select>
+                </label>
+
+                <label>Cards
+                    <select id="want-cards" multiple></select>
+                </label>
+            </div>
 
             <button onclick="makeTradeOffer()">Make Offer</button>
             <button onclick="tradeDialog.close()">Cancel</button>

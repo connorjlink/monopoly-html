@@ -230,7 +230,7 @@ textarea {
     filter: contrast(0);
 }
 
-.trade-offer {
+.tradegive-offer {
     display: flex;
     width: max-content;
     padding-bottom: 0 !important;
@@ -255,10 +255,13 @@ textarea {
     }
 
     .right {
+        display: flex;
+        flex-direction: column;
         margin: 0;
     }
 
     input, select {
         width: 10em;
+        height: 3em;
     }
 }

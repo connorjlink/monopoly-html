@@ -1,6 +1,6 @@
 TODO:
    - Property Improvements
-   - Jail System
+// - Jail System
 // - Chance / Community Chest
    - Trading (proper ownership semantics)
 // - Corners
