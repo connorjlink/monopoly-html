@@ -239,7 +239,7 @@ textarea {
 
     label {
         display: inline-block;
-        width: 40%;
+        width: 50%;
         text-align: right;
     }
 
@@ -248,11 +248,11 @@ textarea {
     }
 
     input, select {
-        width: 10em;
+        width: 15em;
         height: 3em;
     }
 }
 
-.trade-want {
+.trade-want, .trade-cede {
     padding-bottom: 20px;
 }

@@ -232,30 +232,30 @@
             <h3>You Get</h3>
             <div class="trade-get">
                 <label>Cash
-                    <input disabled id="get-cash">
+                    <input  id="get-cash">
                 </label>
 
                 <label>Properties
-                    <select disabled id="get-properties" multiple></select>
+                    <select  id="get-properties" multiple></select>
                 </label>
 
                 <label>Cards
-                    <select disabled id="get-cards" multiple></select>
+                    <select  id="get-cards" multiple></select>
                 </label>
             </div>
 
             <h3>You Cede</h3>
             <div class="trade-cede">
                 <label>Cash
-                    <input disabled id="cede-cash">
+                    <input  id="cede-cash">
                 </label>
 
                 <label>Properties
-                    <select disabled id="cede-properties" multiple></select>
+                    <select  id="cede-properties" multiple></select>
                 </label>
 
                 <label>Cards
-                    <select disabled id="cede-cards" multiple></select>
+                    <select  id="cede-cards" multiple></select>
                 </label>
             </div>
 
@@ -320,6 +320,34 @@
             <button onclick="acceptGoToJail()">Accept</button>
         </dialog>
 
+        <dialog id="management-dialog">
+            <h1>Property Management</h1>
+
+            <hr>
+
+            <h2>Select A Property</h2>
+            <select id="selected-property"></select>
+
+            <button id="improve-property" onclick="improveSelectedProperty()">Improve</button>
+            <button id="demolish-property" onclick="demolishSelectedProperty()">Demolish</button>
+            
+            <hr>
+            
+            <button onclick="managementDialog.close()">Close</button>
+        </dialog>
+
+        <dialog id="managementconfirm-dialog">
+            <h1>Property Management</h1>
+
+            <hr>
+
+            <h2>Confirm Action</h2>
+            <p>Are you sure you want to <span id="management-result"></span>.</p>
+
+            <button onclick="confirmManagementAction()">Yes</button>
+            <button onclick="managementConfirmDialog.close()">No</button>
+        </dialog>
+
         <header>
             <h1>HTML Monopoly</h1>
 
@@ -353,6 +381,7 @@
                         <button id="roll-button" onclick="currentPlayer().roll()">Roll</button>
                         <button id="trade-button" onclick="currentPlayer().trade()">Trade</button>
                         <button id="endturn-button" onclick="currentPlayer().endTurn()">End Turn</button>
+                        <button id="manage-button" onclick="promptPropertyManagement()">Manage Properties</button>
                         <button onclick="promptBankruptcy()">Declare Bankruptcy</button>
                     </div>
                 </div>

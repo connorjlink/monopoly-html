@@ -28,7 +28,7 @@ const propertyColors = [
 ];
 
 
-function property(name, color, cost, owned, target, highlight) {
+function property(name, color, cost, owned, target, highlight, improvement) {
     let owner = owned;
     if (owner == null) {
         owner = '';
@@ -41,7 +41,7 @@ function property(name, color, cost, owned, target, highlight) {
 
     return `
     <div class="space ${targeted} ${highlighted}" owned="${owner}">
-        <div class="space-color" style="background-color: ${color}"></div>
+        <div class="space-color" improvement="${improvement}" style="background-color: ${color}"></div>
 
         <div class="space-content">
             <p>${name}</p>
@@ -179,7 +179,7 @@ function wrap(markup, players) {
 }
 
 class BoardProperty extends HTMLElement {
-    static observedAttributes = ["owned", "targeted", "highlighted", "players"];
+    static observedAttributes = ["owned", "targeted", "highlighted", "players", "improvement"];
 
     constructor() {
         super();
@@ -191,9 +191,10 @@ class BoardProperty extends HTMLElement {
         const target = this.getAttribute('targeted');
         const highlight = this.getAttribute('highlighted');
         const players = this.getAttribute('players');
+        const improvement = this.getAttribute('improvement');
 
         const ref = monopolyGame.squares[square];
-        this.innerHTML = wrap(property(ref.name, propertyColors[ref.color], ref.cost, owner, target, highlight), players);
+        this.innerHTML = wrap(property(ref.name, propertyColors[ref.color], ref.cost, owner, target, highlight, improvement), players);
     }
 
     connectedCallback() {

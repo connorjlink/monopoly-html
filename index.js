@@ -150,6 +150,8 @@ function rejectBuy() {
     buyconfirmDialog.close();
 }
 
+
+// auction screen
 const auctionDialog = document.getElementById("auction-dialog");
 const auctionturnContainer = document.getElementById("auctionturn-container");
 const auctionTurns = document.getElementsByClassName("auction-turn");
@@ -265,6 +267,7 @@ function withdraw() {
 }
 
 
+// insufficient funds screen
 const insufficientfundsDialog = document.getElementById("insufficientfunds-dialog");
 
 function promptInsufficientFunds() {
@@ -277,6 +280,7 @@ function confirmAccept() {
 }
 
 
+// auction win screen
 const auctioncongratsDialog = document.getElementById("auctioncongrats-dialog");
 const auctionWinner = document.getElementById("auction-winner");
 
@@ -295,6 +299,7 @@ function acceptCongrats() {
 }
 
 
+// game win screen
 const wincongratsDialog = document.getElementById("wincongrats-dialog");
 const gameWinner = document.getElementById("game-winner");
 
@@ -393,13 +398,16 @@ const wantProperties = document.getElementById("want-properties");
 const wantCards = document.getElementById("want-cards");
 
 function makeTradeOffer() {
-    getCash.textContent = giveCash.textContent || 0;
-    getProperties.selectedOptions = givePropertiesList.selectedOptions;
+    getCash.value = giveCash.value || 0;
+    getProperties.innerHTML = giveProperties.innerHTML;
+    //getProperties.value = [...giveProperties.selectedOptions].map(option => option.value);
     getCards.selectedOptions = giveCards.selectedOptions;
 
-    wantCash.textContent = cedeCash.textContent || 0;
-    wantPropertiesList.selectedOptions = cedeProperties.selectedOptions;
-    wantCards.selectedOptions = cedeCards.selectedOptions;
+    cedeCash.value = wantCash.value || 0;
+    cedeProperties.innerHTML = wantProperties.innerHTML;
+    //getProperties.value = [...giveProperties.selectedOptions].map(option => option.value);
+    //cedeProperties.selectedOptions = wantProperties.selectedOptions 
+    cedeCards.selectedOptions = cedeCards.selectedOptions;
 
     tradeOfferDialog.showModal();
 }
@@ -458,6 +466,74 @@ function acceptDraw() {
     let player = currentPlayer();
     currentCard.functor(player);
     drawDialog.close();
+}
+
+
+// management screen
+const managementDialog = document.getElementById("management-dialog");
+const selectedProperty = document.getElementById("selected-property");
+const improveProperty = document.getElementById("improve-property");
+const demolishProperty = document.getElementById("demolish-property");
+
+function promptPropertyManagement() {
+    let player = currentPlayer();
+
+    selectedProperty.innerHTML = '';
+
+    for (let square of monopolyGame.squares) {
+        if ('owned' in square) {
+            if (square.owned == player.turn) {
+                selectedProperty.insertAdjacentHTML("beforeend", `
+                    <option>${square.name}</option>
+                `);
+            }
+        }
+    }
+
+    managementDialog.showModal();
+}
+
+function updateManagementButtons(square) {
+    switch (square.improvementState) {
+        case -1: {
+            improveProperty.textContent = 'Unmortgage';
+            demolishProperty.textContent = 'Mortgage';
+            demolishProperty.toggleAttribute('disabled', true);
+        } break;
+
+        case 0: {
+            improveProperty.textContent = 'Improve';
+            demolishProperty.textContent = 'Mortgage';
+            demolishProperty.toggleAttribute('disabled', false);
+        } break;
+
+        default: {
+            improveProperty.textContent = 'Improve';
+            demolishProperty.textContent = 'Demolish';
+            demolishProperty.toggleAttribute('disabled', false);
+        } break;
+    }
+}
+
+function manageSelectedProperty(functor) {
+    let player = currentPlayer();
+    let propertyName = selectedProperty.value;
+
+    for (let square of monopolyGame.squares) {
+        if (propertyName === square.name) {
+            // TODO:
+            eval(`square.${functor}`);
+            updateManagementButtons(square);
+        }
+    }
+}
+
+function improveSelectedProperty() {
+    manageSelectedProperty('tryImprove');
+}
+
+function demolishSelectedProperty() {
+    manageSelectedProperty('tryDemolish');
 }
 
 
@@ -582,6 +658,26 @@ function startGame() {
     initializationSequence();
     // navigate to the board view
     showTab(0);
+}
+
+
+// -----------------------------------------------------------
+// | Random hack in order to make multi-select elements work |
+// -----------------------------------------------------------
+// https://stackoverflow.com/questions/8641729/how-to-avoid-the-need-for-ctrl-click-in-a-multi-select-box-using-javascript
+const multiSelectWithoutCtrl = ( elemSelector ) => {
+    let options = document.querySelectorAll(`${elemSelector} option`);
+
+    options.forEach(function (element) {
+        element.addEventListener("mousedown", 
+            function (e) {
+                console.log("fired");
+                e.preventDefault();
+                element.parentElement.focus();
+                this.selected = !this.selected;
+                return false;
+            }, false );
+    });
 }
 
 

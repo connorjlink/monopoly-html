@@ -16,10 +16,9 @@ class AbstractSquare {
         this.name = name;
         this.color = color;
         this.cost = cost;
-        this.mortval = mortval;
+        this.mortgageValue = mortval;
         this.icon = icon;
         this.improvementState = 0;
-        this.isMortgaged = false;
         this.owned = null;
     }
 
@@ -31,18 +30,32 @@ class AbstractSquare {
         let [can, reason] = this.canImprove();
 
         if (can) {
-            this.improvementState++;
-            player.money -= this.devcost;
-
-            if (this.improvementState < 5) {
-                game.availableHouses--;
+            if (this.improvementState === -1) {
+                // unmortgage it (with 10% interest)
+                let cost = this.mortgageValue * 1.1;
+                if (player.withdraw(cost)) {
+                    this.improvementState++;
+                    logMessage(`${player.name} has unmortgaged ${this.name} for ${cost}¢.`);
+                }
             } else {
-                game.availableHotels--;
-            }
+                if (player.withdraw(this.improvementCost)) {
+                    this.improvementState++;
 
+                    if (this.improvementState < 5) {
+                        game.availableHouses--;
+                    } else {
+                        game.availableHotels--;
+                    }
+    
+                    game.rebuildAvailableImprovements();
+                    logMessage(`${player.name} has improved ${this.name} for ${this.improvementCost}¢.`);
+                }
+            }
         } else {
             logMessage(reason);
         }
+
+        return can;
     }
 
     tryDemolish(player, game) {
@@ -50,21 +63,35 @@ class AbstractSquare {
 
         if (can) {
             this.improvementState--;
-            player.money += this.devcost;
-
-            if (this.improvementState < 5) {
-                game.availableHouses++;
+            
+            if (this.improvementState === -1) {
+                // mortgage it
+                player.deposit(this.mortgageValue);
+                game.rebuildTitleDeeds();
+                logMessage(`${player.name} has mortgaged ${this.name} for ${this.mortgageValue}¢.`);
             } else {
-                game.availableHotels++;
+                let amount = this.improvementCost * 0.5;
+                player.deposit(amount);
+
+                if (this.improvementState < 5) {
+                    game.availableHouses++;
+                } else {
+                    game.availableHotels++;
+                }
+
+                game.rebuildAvailableImprovements();
+                logMessage(`${player.name} has demolished ${this.name} for ${amount}¢.`);
             }
         } else {
             logMessage(reason);
         }
+
+        return can;
     }
 }
 
 class ColorProperty extends AbstractSquare {
-    constructor(square, name, color, cost, mortval, rent0, rent1, rent2, rent3, rent4, rent5, devcost) {
+    constructor(square, name, color, cost, mortval, rent0, rent1, rent2, rent3, rent4, rent5, improvementCost) {
         // no meaningful icon
         super(square, name, color, cost, mortval, null);
         this.rent0 = rent0;
@@ -73,7 +100,7 @@ class ColorProperty extends AbstractSquare {
         this.rent3 = rent3;
         this.rent4 = rent4;
         this.rent5 = rent5;
-        this.devcost = devcost;
+        this.improvementCost = improvementCost;
     }
 
     currentRent() {
@@ -87,17 +114,63 @@ class ColorProperty extends AbstractSquare {
         }
     }
 
-    canImprove() {
+    canImprove(player) {
         let can = true;
         let reason = "";
 
         let isHotelImprovement = this.improvementState > 4;
 
-        if (isMortgaged) {
-            can = false;
-            reason = 'mortgaged properties cannot be developed';
-        } else {
+        // TODO:
+        // sort by col or group
 
+        if (this.improvementState >= 5) {
+            can = false;
+            reason = "hotel-renovated properties cannot be further improved";
+        } else {
+            if (isHotelImprovement && monopolyGame.availableHotels === 0) {
+                can = false;
+                reason = "there remain no more hotels for improvements";
+            } else if (monopolyGame.availableHouses === 0) {
+                can = false;
+                reason = "there remain no more houses for improvements";
+            } else {
+                let colorGroup = [];
+                let colorGroupOwned = true;
+
+                for (let square of monopolyGame.squares) {
+                    if ('color' in square) {
+                        if (square.color == this.color) {
+                            colorGroup.push(square);
+
+                            if (square.owned != player.turn) {
+                                colorGroupOwned = false;
+                            }
+                        }
+                    }
+                }
+
+                if (!colorGroupOwned) {
+                    can = false;
+                    reason = "there exists no monopoly on the target color group";
+                } else {
+                    let maxDifference = 0;
+
+                    for (let square of colorGroup) {
+                        let difference = square.improvementState - (this.improvementState + 1);
+
+                        if (difference > maxDifference) {
+                            maxDifference = difference;
+                        }
+                    }
+
+                    if (maxDifference > 1) {
+                        can = false;
+                        reason = "color group properties must be evenly improved";
+                    } else {
+                        // TODO: can improve then?
+                    }
+                }
+            }   
         }
 
         return [can, reason];
@@ -109,12 +182,7 @@ class ColorProperty extends AbstractSquare {
 
         let isHotelDemolition = this.improvementState > 4;
 
-        if (isMortgaged) {
-            can = false;
-            reason = 'mortgaged properties cannot be developed';
-        } else {
-
-        }
+        // TODO:
 
         return [can, reason];
     }
@@ -147,11 +215,11 @@ class RailroadProperty extends AbstractSquare {
     }
 
     canImprove() {
-        return [false, 'railroad properties cannot be developed'];
+        return [this.improvementState === -1, 'railroad properties cannot be developed'];
     }
 
     canDemolish() {
-        return [false, 'railroad properties cannot be developed'];
+        return [this.improvementState === 0, 'railroad properties cannot be developed'];
     }
 }
 
@@ -170,11 +238,11 @@ class UtilityProperty extends AbstractSquare {
     }
 
     canImprove() {
-        return [false, 'utility properties cannot be developed'];
+        return [this.improvementState === -1, 'utility properties cannot be developed'];
     }
 
     canDemolish() {
-        return [false, 'utility properties cannot be developed'];
+        return [this.improvementState === 0, 'utility properties cannot be developed'];
     }
 }
 
@@ -542,45 +610,6 @@ class Game {
         ];
     }
 
-    /*rebuildBoard() {
-        // NOTE: only the custom board tags will have this attribute
-        const squares = document.querySelectorAll("[square]");
-
-        for (let square of squares) {
-            const id = square.getAttribute("square");
-
-            switch (square.constructor) {
-                case ColorProperty:
-                    break;
-                
-                case RailroadProperty:
-                    break;
-
-                case UtilityProperty:
-                    break;
-
-                case CornerSquare:
-                    break;
-
-                case CommunityChestSquare:
-                    break;
-
-                case ChanceSquare:
-                    square.innerHTML = iconic()
-                    break;
-
-                case TaxSquare:
-                    square.innerHTML = iconic(square.name, square.icon, square.cost);
-                    break;
-
-                case AbstractSquare:
-                default:
-                    console.error("Cannot regenerate markup for " + square.constructor.name);
-                    break;
-            }
-        }
-    }*/
-
     repositionPlayers() {
         for (let square of this.squaresMarkup) {
             square.removeAttribute('players');
@@ -704,7 +733,7 @@ class Game {
             } break;
 
             case GoToJailSquare: {
-
+                player.goToJail();
             } break;
 
             case CommunityChestSquare: {
@@ -799,7 +828,6 @@ class Player {
             enableEndTurn();
 
             let [die1, die2] = rollDice();
-            die1 = die2;
             let sum = die1 + die2;
 
             monopolyGame.lastDice = sum;
@@ -938,7 +966,7 @@ class Player {
 
         for (let square of monopolyGame.squares) {
             if (square.owned === this.turn) {
-                sum += property.value;
+                sum += square.cost;
             }
         }
 
@@ -952,9 +980,9 @@ class Player {
 
         for (let square of monopolyGame.squares) {
             if (square.owned === this.turn) {
-                if (square.isMortgaged) {
-                    // mortgage value = 50%, interest = 10%
-                    sum += (property.value * 0.6);
+                if (square.improvementState === -1) {
+                    // mortgage value + interest (10%)
+                    sum += (square.mortgageValue * 1.1);
                 }
             }
         }
