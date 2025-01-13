@@ -791,40 +791,46 @@ class Player {
         promptGoToJail();
     }
 
-    roll() {
-        disableRoll();
-        enableEndTurn();
+    roll(existingSum = null) {
+        let doubles = false;
 
-        let [die1, die2] = rollDice();
-        die1 = die2;
-        let sum = die1 + die2;
+        if (existingSum == null) {
+            disableRoll();
+            enableEndTurn();
 
+            let [die1, die2] = rollDice();
+            die1 = die2;
+            let sum = die1 + die2;
 
-        monopolyGame.lastDice = sum;
+            monopolyGame.lastDice = sum;
 
-        let doubles = die1 === die2;
-        if (doubles) {
-            this.consecutiveDoubles++;
+            doubles = die1 === die2;
+            if (doubles) {
+                this.consecutiveDoubles++;
 
-            if (this.consecutiveDoubles === 3) {
-                this.goToJail();
-                return;
+                if (this.consecutiveDoubles === 3) {
+                    this.goToJail();
+                    return;
+                }
+            } else {
+                this.consecutiveDoubles = 0;
             }
         } else {
-            this.consecutiveDoubles = 0;
+            monopolyGame.lastDice = existingSum;
+            doubles = true;
         }
-
+        
         let doublesString = doubles ? '(doubles) ' : '';
 
-        let targetSquare = (this.currentSquare + sum) % monopolyGame.squares.length;
-        logMessage(`${this.name} rolled ${sum} ${doublesString}and landed on ${monopolyGame.squares[targetSquare].name}.`);
+        let targetSquare = (this.currentSquare + monopolyGame.lastDice) % monopolyGame.squares.length;
+        logMessage(`${this.name} rolled ${monopolyGame.lastDice} ${doublesString}and landed on ${monopolyGame.squares[targetSquare].name}.`);
 
         if (targetSquare < this.currentSquare) {
             this.collectGO();
         }
 
         monopolyGame.unhighlightAll();
-        for (let i = this.currentSquare; i < this.currentSquare + sum; i++) {
+        for (let i = this.currentSquare; i < this.currentSquare + monopolyGame.lastDice; i++) {
             monopolyGame.squaresMarkup[i % monopolyGame.squaresMarkup.length].setAttribute('highlighted', '');
         }
 
@@ -918,6 +924,10 @@ class Player {
 
         enableRoll();
         disableEndTurn();
+
+        if (monopolyGame.players[monopolyGame.currentTurn].inJail) {
+            promptJail();
+        }
     }
 
     computeAssets() {

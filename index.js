@@ -413,18 +413,103 @@ function acceptDraw() {
 
 // jail screen
 const jailDialog = document.getElementById("jail-dialog");
+const jailTarget = document.getElementById("jail-target");
 const jailUseCard = document.getElementById("jail-usecard");
 const jailCardsRemaining = document.getElementById("jail-cardsremaining");
 const jailPayBail = document.getElementById("jail-paybail");
+const jailRollDice = document.getElementById("jail-rolldice");
 const jailAttemptsRemaining = document.getElementById("jail-attemptsremaining");
 
 function promptJail() {
     let player = currentPlayer();
 
-    jailUseCard.toggleAttribute('disabled', player.bailCards != 0);
+    jailTarget.textContent = player.name;
+    jailUseCard.toggleAttribute('disabled', player.bailCards == 0);
     jailCardsRemaining.textContent = player.bailCards;
-    jailPayBail.toggleAttribute('disabled', player.bailCards != 0);
+    jailRollDice.toggleAttribute('disabled', player.jailAttemptsRemaining == 0);
     jailAttemptsRemaining.textContent = player.jailAttemptsRemaining;
+
+    jailDialog.showModal();
+}
+
+function useBailCard() {
+    let player = currentPlayer();
+    player.bailCards--;
+    player.inJail = false;
+    logMessage(`${player.name} has used a Get Out of Jail Free card.`);
+    jailDialog.close();
+}
+
+function payBail() {
+    let player = currentPlayer();
+    player.withdraw(50);
+    player.inJail = false;
+    logMessage(`${player.name} has paid 50¢ in bond to bail his/herself out of Jail.`);
+    jailDialog.close();
+}
+
+function rollJailDice() {
+    let player = currentPlayer();
+
+    if (player.jailAttemptsRemaining === 0) {
+        promptForceBail();
+    } else {
+        promptJailDice();
+    }
+}
+
+
+// force bail screen
+const forceBailDialog = document.getElementById("forcebail-dialog");
+
+function promptForceBail() {
+    forceBailDialog.showModal();
+}
+
+function payForceBail() {
+    payBail();
+    forceBailDialog.close();
+}
+
+
+// jail dice screen
+const jailDiceDialog = document.getElementById("jaildice-dialog");
+const jailDiceResult = document.getElementById("jaildice-result");
+const jailDiceExplanation = document.getElementById("jaildice-explanation");
+
+var lastTrySuccessful = false;
+var lastResult = null;
+
+function promptJailDice() {
+    let [die1, die2] = rollDice();
+    let doubles = die1 === die2;
+    
+    if (doubles) {
+        lastTrySuccessful = true;
+        lastResult = die1 + die2;
+    } else {
+        lastTrySuccessful = false;
+    }
+
+    jailDiceResult.textContent = doubles ? "Successful" : "Unsucessful";
+    jailDiceExplanation.textContent = doubles ? `You have rolled doubles and have been freed from jail.` 
+        : `You have failed to roll doubles and will remain in jail; next turn, you will have another opportunity to act.`;
+    jailDiceDialog.showModal();
+}
+
+function acceptJailDice() {
+    let player = currentPlayer();
+    
+    if (lastTrySuccessful) {
+        player.inJail = false;
+        player.roll(lastResult);
+    } else {
+        player.jailAttemptsRemaining--;
+    }
+
+    jailDiceDialog.close();
+    jailDialog.close();
+    currentPlayer().endTurn();
 }
 
 
@@ -437,6 +522,7 @@ function promptGoToJail() {
 
 function acceptGoToJail() {
     goToJailDialog.close();
+    currentPlayer().endTurn();
 }
 
 

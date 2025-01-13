@@ -237,10 +237,33 @@
             <hr>
 
             <h2>Available Actions</h2>
+            <p><span id="jail-target"></span>, you are in Jail.</p>
 
-            <button id="jail-usecard">Use Get Out of Jail Free Card (<span id="jail-cardsremaining"></span> remaining)</button>
-            <button id="jail-paybail">Pay Bail (50¢)</button>
-            <button>Roll Dice (<span id="jail-attemptsremaining"></span>)</button>
+            <button id="jail-usecard" onclick="useBailCard()">Use Get Out of Jail Free Card (<span id="jail-cardsremaining"></span> remaining)</button>
+            <button id="jail-paybail" onclick="payBail()">Pay Bail (50¢)</button>
+            <button onclick="rollJailDice()" id="jail-rolldice">Roll Dice (<span id="jail-attemptsremaining"></span> attempts remaining)</button>
+        </dialog>
+
+        <dialog id="forcebail-dialog">
+            <h1>Jail Bail</h1>
+
+            <hr>
+
+            <h2>Attempts Exhausted</h2>
+            <p>You have run out of doubles roll attempts and now must pay bail to free yourself.</p>
+
+            <button onclick="payForceBail()">Pay 50¢</button>
+        </dialog>
+
+        <dialog id="jaildice-dialog">
+            <h1>Jail Doubles Attempt</h1>
+
+            <hr>
+
+            <h2>Attempt <span id="jaildice-result"></span></h2>
+            <p id="jaildice-explanation"></p>
+
+            <button onclick="acceptJailDice()">Accept</button>
         </dialog>
 
         <dialog id="gotojail-dialog">
