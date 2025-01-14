@@ -951,8 +951,12 @@ class Player {
         monopolyGame.rebuildPlayerAccounts();
     }
 
+    canWithdraw(amount) {
+        return this.money >= amount;
+    }
+
     withdraw(amount) {
-        if (this.money >= amount) {
+        if (this.canWithdraw(amount)) {
             this.money -= amount;
             monopolyGame.rebuildTurnBalances();
             monopolyGame.rebuildPlayerAccounts();
@@ -980,6 +984,12 @@ class Player {
         }
 
         return false;
+    }
+
+    transferOwnership(square, toWhom) {
+        square.owned = toWhom.turn;
+        monopolyGame.squaresMarkup[square.square].setAttribute('owned', toWhom.turn);
+        monopolyGame.rebuildTitleDeeds();
     }
 
     tryPayRentFactor(factor = 1) {
@@ -1200,8 +1210,5 @@ function initializationSequence() {
     }
 
     logMessage(`Welcome to Monopoly! It's ${monopolyGame.players[0].name}'s turn to roll.`);
-
-    currentPlayer().buy(monopolyGame.squares[1]);
-    currentPlayer().buy(monopolyGame.squares[3]);
 }
 

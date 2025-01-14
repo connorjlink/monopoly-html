@@ -397,17 +397,29 @@ const wantCash = document.getElementById("want-cash");
 const wantProperties = document.getElementById("want-properties");
 const wantCards = document.getElementById("want-cards");
 
+function copySelected(from, to) {
+    for (let option of from.selectedOptions) {
+        to.children[option.index].toggleAttribute('selected', true);
+    }
+
+    // for (let i = 0; i < from.childElementCount; i++) {
+    //     let isSelected = from.children[i].hasAttribute('selected');
+    //     to.children[i].toggleAttribute('selected', isSelected);
+    // }
+}
+
 function makeTradeOffer() {
     getCash.value = giveCash.value || 0;
     getProperties.innerHTML = giveProperties.innerHTML;
-    //getProperties.value = [...giveProperties.selectedOptions].map(option => option.value);
+    copySelected(giveProperties, getProperties);
     getCards.selectedOptions = giveCards.selectedOptions;
+    copySelected(giveCards, getCards);
 
     cedeCash.value = wantCash.value || 0;
     cedeProperties.innerHTML = wantProperties.innerHTML;
-    //getProperties.value = [...giveProperties.selectedOptions].map(option => option.value);
-    //cedeProperties.selectedOptions = wantProperties.selectedOptions 
-    cedeCards.selectedOptions = cedeCards.selectedOptions;
+    copySelected(wantProperties, cedeProperties);
+    cedeCards.innerHTML = wantCards.innerHTML;
+    copySelected(wantCards, cedeCards);
 
     tradeOfferDialog.showModal();
 }
@@ -422,18 +434,63 @@ const cedeCash = document.getElementById("cede-cash");
 const cedeProperties = document.getElementById("cede-properties");
 const cedeCards = document.getElementById("cede-cards");
 
-function acceptTradeOffer() {
-    // TODO: transfer ownership
-
+function endTrade(reason) {
     tradeOfferDialog.close();
     tradeDialog.close();
-    logMessage(`${requestee.name} has accepted ${requestor.name}'s trade offer.`);
+    logMessage(reason);
+}
+
+function acceptTradeOffer() {
+    let giveCashValue = parseInt(giveCash.value);
+    let wantCashValue = parseInt(wantCash.value);
+    
+    if (requestor.withdraw(giveCashValue)) {
+        requestee.deposit(giveCashValue);
+    } else {
+        promptInsufficientFunds();
+        endTrade(`${requestor.name} has insufficient funds to complete the trade.`);
+        return;
+    }
+
+    if (requestee.withdraw(wantCashValue)) {
+        requestor.deposit(wantCashValue);
+    } else {
+        promptInsufficientFunds();
+        endTrade(`${requestee.name} has insufficient funds to complete the trade.`);
+        return;
+    }
+
+    // TODO: transfer ownership
+    for (let child of giveProperties.selectedOptions) {
+        for (let square of monopolyGame.squares) {
+            if (child.name === square.name) {
+                requestor.transferOwnership(square, requestee);
+            }
+        }
+    }
+
+    for (let child of wantProperties.selectedOptions) {
+        for (let square of monopolyGame.squares) {
+            if (child.name === square.name) {
+                requestee.transferOwnership(square, requestor);
+            }
+        }
+    }
+
+    let giveCardsCount = giveCards.selectedOptions.length;
+    let wantCardsCount = wantCards.selectedOptions.length;
+
+    requestor.bailCards -= giveCardsCount;
+    requestee.bailCards += giveCardsCount;
+    
+    requestor.bailCards += wantCardsCount;
+    requestee.bailCards -= wantCardsCount;
+
+    endTrade(`${requestee.name} has accepted ${requestor.name}'s trade offer.`);
 }
 
 function rejectTradeOffer() {
-    tradeOfferDialog.close();
-    tradeDialog.close();
-    logMessage(`${requestee.name} has rejected ${requestor.name}'s trade offer.`);
+    endTrade(`${requestee.name} has rejected ${requestor.name}'s trade offer.`);
 }
 
 
