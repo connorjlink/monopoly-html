@@ -41,6 +41,8 @@ class AbstractSquare {
             } else {
                 if (player.withdraw(this.improvementCost)) {
                     this.improvementState++;
+                    
+                    monopolyGame.squaresMarkup[this.square].setAttribute('improvement', this.improvementState);
 
                     if (this.improvementState < 5) {
                         game.availableHouses--;
@@ -53,7 +55,7 @@ class AbstractSquare {
                 }
             }
         } else {
-            logMessage(reason);
+            logMessage(`Cannot improve ${this.name} because ${reason}`);
         }
 
         return can;
@@ -64,6 +66,8 @@ class AbstractSquare {
 
         if (can) {
             this.improvementState--;
+
+            monopolyGame.squaresMarkup[this.square].setAttribute('improvement', this.improvementState);
             
             if (this.improvementState === -1) {
                 // mortgage it
@@ -84,7 +88,7 @@ class AbstractSquare {
                 logMessage(`${player.name} has demolished ${this.name} for ${amount}¢.`);
             }
         } else {
-            logMessage(reason);
+            logMessage(`Cannot demolish ${this.name} because ${reason}`);
         }
 
         return can;
@@ -121,9 +125,6 @@ class ColorProperty extends AbstractSquare {
 
         let isHotelImprovement = this.improvementState > 4;
 
-        // TODO:
-        // sort by col or group
-
         if (this.improvementState >= 5) {
             can = false;
             reason = "hotel-renovated properties cannot be further improved";
@@ -150,25 +151,25 @@ class ColorProperty extends AbstractSquare {
                     }
                 }
 
-                if (!colorGroupOwned) {
-                    can = false;
-                    reason = "there exists no monopoly on the target color group";
-                } else {
-                    let maxDifference = 0;
-
-                    for (let square of colorGroup) {
-                        let difference = square.improvementState - (this.improvementState + 1);
-
-                        if (difference > maxDifference) {
-                            maxDifference = difference;
-                        }
-                    }
-
-                    if (maxDifference > 1) {
+                if (this.improvementState !== -1) {
+                    if (!colorGroupOwned) {
                         can = false;
-                        reason = "color group properties must be evenly improved";
+                        reason = "there exists no monopoly on the target color group";
                     } else {
-                        // TODO: can improve then?
+                        let lowestImprovementState = colorGroup[0].improvementState;
+    
+                        for (let square of colorGroup) {
+                            if (square.improvementState < lowestImprovementState) {
+                                lowestImprovementState = square.improvementState;
+                            }
+                        }
+
+                        let difference = this.improvementState - lowestImprovementState;
+                        
+                        if (difference >= 1) {
+                            can = false;
+                            reason = "color group properties must be evenly improved";
+                        }
                     }
                 }
             }   
@@ -177,13 +178,51 @@ class ColorProperty extends AbstractSquare {
         return [can, reason];
     }
 
-    canDemolish() {
+    canDemolish(player) {
         let can = true;
         let reason = "";
 
         let isHotelDemolition = this.improvementState > 4;
 
-        // TODO:
+        if (this.improvementState <= -1) {
+            can = false;
+            reason = "mortgaged properties cannot be further demolished";
+        } else {
+            let colorGroup = [];
+            let colorGroupOwned = true;
+
+            for (let square of monopolyGame.squares) {
+                if ('color' in square) {
+                    if (square.color == this.color) {
+                        colorGroup.push(square);
+
+                        if (square.owned != player.turn) {
+                            colorGroupOwned = false;
+                        }
+                    }
+                }
+            }
+
+            if (!colorGroupOwned) {
+                can = false;
+                reason = "there exists no monopoly on the target color group";
+            } else {
+                let highestImprovementState = colorGroup[0].improvementState;
+
+                for (let square of colorGroup) {
+                    if (square.improvementState > highestImprovementState) {
+                        highestImprovementState = square.improvementState;
+                    }
+                }
+
+                let difference = highestImprovementState - this.improvementState;
+                
+                if (difference >= 1) {
+                    can = false;
+                    reason = "color group properties must be evenly demolished";
+                }
+            }
+        }
 
         return [can, reason];
     }
@@ -663,9 +702,11 @@ class Game {
 
     rebuildTurnBalances() {
         turnContainer.innerHTML = '';
+        auctionturnContainer.innerHTML = '';
 
         for (let player of this.players) {
             markupTurnBalances(player);
+            markupAuctionPlayers(player);
         }
     }
 
@@ -759,13 +800,13 @@ class Game {
             } break;
 
             case CommunityChestSquare: {
-                let cardIndex = getRandomInt(0, this.communityChestCards.length);
+                let cardIndex = getRandomInt(0, this.communityChestCards.length - 1);
                 let card = this.communityChestCards[cardIndex];
                 promptCommunityChestCard(card);
             } break;
 
             case ChanceSquare: {
-                let cardIndex = getRandomInt(0, this.chanceCards.length);
+                let cardIndex = getRandomInt(0, this.chanceCards.length - 1);
                 let card = this.chanceCards[cardIndex];
                 promptChanceCard(card);
             } break;
@@ -1159,5 +1200,8 @@ function initializationSequence() {
     }
 
     logMessage(`Welcome to Monopoly! It's ${monopolyGame.players[0].name}'s turn to roll.`);
+
+    currentPlayer().buy(monopolyGame.squares[1]);
+    currentPlayer().buy(monopolyGame.squares[3]);
 }
 

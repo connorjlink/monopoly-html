@@ -1,5 +1,5 @@
 function colorDeed(name, rent0, rent1, rent2, rent3, rent4, rent5, mortval, devcost, isMortgaged, color) {
-    let mortgagedText = isMortgaged == true ? `
+    let mortgagedText = isMortgaged == "true" ? `
     <div class="mortgaged">
         <svg viewBox="0 0 10 10" preserveAspectRatio="none">
             <line x1="0" y1="0" x2="10" y2="10" stroke="red" stroke-width="0.1"/>
@@ -56,7 +56,7 @@ function colorDeed(name, rent0, rent1, rent2, rent3, rent4, rent5, mortval, devc
 }
 
 function utilityDeed(name, icon, isMortgaged) {
-    let mortgagedText = isMortgaged == true ? `
+    let mortgagedText = isMortgaged == "true" ? `
     <div class="mortgaged">
         <svg viewBox="0 0 10 10" preserveAspectRatio="none">
             <line x1="0" y1="0" x2="10" y2="10" stroke="red" stroke-width="0.1"/>
@@ -88,7 +88,7 @@ function utilityDeed(name, icon, isMortgaged) {
 }
 
 function railroadDeed(name, isMortgaged) {
-    let mortgagedText = isMortgaged == true ? `
+    let mortgagedText = isMortgaged == "true" ? `
     <div class="mortgaged">
         <svg viewBox="0 0 10 10" preserveAspectRatio="none">
             <line x1="0" y1="0" x2="10" y2="10" stroke="red" stroke-width="0.1"/>
