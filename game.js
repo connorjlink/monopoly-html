@@ -708,6 +708,8 @@ class Game {
             markupTurnBalances(player);
             markupAuctionPlayers(player);
         }
+
+        this.resetCurrentTurn();
     }
 
     rebuildTitleDeeds() {
@@ -818,6 +820,8 @@ class Game {
         do {
             this.currentTurn = (this.currentTurn + 1) % this.players.length;
         } while (this.players[this.currentTurn].isBankrupt);
+
+        this.resetCurrentTurn();
     }
 
     bankrupt(player, toWhom) {
@@ -826,7 +830,6 @@ class Game {
         turnContainer.children[player.turn].classList.toggle('withdrawn', true);
 
         this.nextTurn();
-        this.resetCurrentTurn();
         logMessage(`${player.name} has gone bankrupt to ${toWhom}; it's now ${this.players[this.currentTurn].name}'s turn to roll.`);
     }
 }
@@ -1023,7 +1026,6 @@ class Player {
         monopolyGame.unhighlightAll();
         monopolyGame.repositionPlayers();
         monopolyGame.nextTurn();
-        monopolyGame.resetCurrentTurn();
         monopolyGame.rebuildTitleDeeds();
 
         enableRoll();

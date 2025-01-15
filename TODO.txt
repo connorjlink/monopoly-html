@@ -1,8 +1,0 @@
-TODO:
-// - Property Improvements
-// - Jail System
-// - Chance / Community Chest
-   - Trading (proper ownership semantics)
-// - Corners
-   - Bug: current player indicator
-   - Bug: money display nan after trade

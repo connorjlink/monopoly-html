@@ -211,9 +211,9 @@ function logBid() {
         element.textContent = `${currentHighBid}¢`;
     }
 
-    while (auctionTurns[currentAuctionTurn].classList.contains('withdrawn')) {
+    do {
         nextBidder();
-    }
+    } while (auctionTurns[currentAuctionTurn].classList.contains('withdrawn'));
 
     setAuctionTurn();
 }
@@ -378,7 +378,9 @@ function acceptTradeRequest() {
         giveCards.insertAdjacentHTML("beforeend", `
             <option>Get Out of Jail Free Card</option>
         `);
+    }
 
+    for (let i = 0; i < requestee.bailCards; i++) {
         wantCards.insertAdjacentHTML("beforeend", `
             <option>Get Out of Jail Free Card</option>
         `);
@@ -463,7 +465,7 @@ function acceptTradeOffer() {
     // TODO: transfer ownership
     for (let child of giveProperties.selectedOptions) {
         for (let square of monopolyGame.squares) {
-            if (child.name === square.name) {
+            if (child.value === square.name) {
                 requestor.transferOwnership(square, requestee);
             }
         }
@@ -471,7 +473,7 @@ function acceptTradeOffer() {
 
     for (let child of wantProperties.selectedOptions) {
         for (let square of monopolyGame.squares) {
-            if (child.name === square.name) {
+            if (child.value === square.name) {
                 requestee.transferOwnership(square, requestor);
             }
         }
